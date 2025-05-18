@@ -126,11 +126,11 @@ rm $site1_config $site2_config
 echo -e "\e[1;36mWaiting for pfsense to boot up...\e[0m"
 sleep 120
 
-echo -e "\e[1;36mChecking connectivity from $site1_vnet_name-fw to $site1_vnet_name network...\e[0m"
-ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "ping -c 3 $site2_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip"
+echo -e "\e[1;36mChecking connectivity from $site1_vnet_name-fw to $site2_vnet_name network...\e[0m"
+ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "ping -c 3 $site2_fw_wan_private_ip && ping -c 3 $site2_fw_lan_private_ip && ping -c 3 $site2_vm_ip"
 
 echo -e "\e[1;36mChecking connectivity from $site2_vnet_name-fw to $site1_vnet_name network...\e[0m"
-ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "ping -c 3 $site1_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip"
+ssh -o StrictHostKeyChecking=no admin@$site2_fw_public_ip "ping -c 3 $site1_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip"
 
 
 # Follow this documentation to configure pfsense ipsec s2s vpn between the two sites: https://docs.netgate.com/pfsense/en/latest/recipes/ipsec-s2s-psk.html but take the following into account:
