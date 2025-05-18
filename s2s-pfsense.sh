@@ -99,6 +99,25 @@ az network route-table create -g $rg -n $site2_vnet_name -l $location -o none
 az network route-table route create -g $rg -n to-site2 --address-prefix $site1_vnet_address --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
 az network vnet subnet update -g $rg -n $site2_vm_subnet_name --vnet-name $site2_vnet_name --route-table $site2_vnet_name -o none
 
+# Download config files
+site1_config=~/site1-pfsense-config.xml
+curl -o $site1_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/site1-pfsense-config.xml
+sed -i -e "s/20\.204\.179\.189/${site1_fw_public_ip}/g" -e "s/4\.213\.183\.129/${site2_fw_public_ip}/g" $site1_config
+site2_config=~/site2-pfsense-config.xml
+curl -o $site2_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/site2-pfsense-config.xml
+sed -i -e "s/20\.204\.179\.189/${site1_fw_public_ip}/g" -e "s/4\.213\.183\.129/${site2_fw_public_ip}/g" $site2_config
+
+# Copying config files to pfsense
+echo -e "\e[1;36mCopying configuration files to $site1_vnet_name-fw and installing opnsense firewall...\e[0m"
+scp -o StrictHostKeyChecking=no $site1_config admin@$site1_fw_public_ip:/cf/conf/config.xml
+echo -e "\e[1;36mRebooting $site1_vnet_name-fw after importing the config file...\e[0m"
+ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "sudo reboot"
+
+echo -e "\e[1;36mCopying configuration files to $site2_vnet_name-fw and installing opnsense firewall...\e[0m"
+scp -o StrictHostKeyChecking=no $site2_config admin@$site2_fw_public_ip:/cf/conf/config.xml
+echo -e "\e[1;36mRebooting $site2_vnet_name-fw after importing the config file...\e[0m"
+ssh -o StrictHostKeyChecking=no admin@$site2_fw_public_ip "sudo reboot"
+
 # Follow this documentation to configure pfsense ipsec s2s vpn between the two sites: https://docs.netgate.com/pfsense/en/latest/recipes/ipsec-s2s-psk.html but take the following into account:
 # 1. In phase 1, set 'My identifier'/'Peer identifier' to IP address and put the public ip address of each pfsense firewall
 # 2. in phase 2, set the 'local network'/'remote network' to network and put the $site1_vnet_address and $site2_vnet_address
