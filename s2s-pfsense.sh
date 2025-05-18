@@ -118,6 +118,7 @@ scp -o StrictHostKeyChecking=no $site2_config admin@$site2_fw_public_ip:/cf/conf
 echo -e "\e[1;36mRebooting $site2_vnet_name-fw after importing the config file...\e[0m"
 ssh -o StrictHostKeyChecking=no admin@$site2_fw_public_ip "sudo reboot"
 
+rm $site1_config $site2_config
 # Follow this documentation to configure pfsense ipsec s2s vpn between the two sites: https://docs.netgate.com/pfsense/en/latest/recipes/ipsec-s2s-psk.html but take the following into account:
 # 1. In phase 1, set 'My identifier'/'Peer identifier' to IP address and put the public ip address of each pfsense firewall
 # 2. in phase 2, set the 'local network'/'remote network' to network and put the $site1_vnet_address and $site2_vnet_address
