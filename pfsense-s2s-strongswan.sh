@@ -111,7 +111,7 @@ az network vnet subnet update -g $rg -n $site2_vm_subnet_name --vnet-name $site2
 # Download config files
 site1_config=~/site1-pfsense-config.xml
 curl -o $site1_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/site1-pfsense-config.xml
-sed -i -e "s/20\.204\.179\.189/${site1_fw_public_ip}/g" -e "s/4\.213\.183\.129/${site2_gw_pubip}/g" $site1_config
+sed -i -e "s/20\.204\.168\.102/${site1_fw_public_ip}/g" -e "s/4\.240\.60\.81/${site2_gw_pubip}/g" $site1_config
 
 # Copying config files to site1 pfsense
 echo -e "\e[1;36mCopying configuration files to $site1_vnet_name-fw and installing opnsense firewall...\e[0m"

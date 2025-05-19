@@ -1,4 +1,4 @@
-rg=pfsense-s2s-vti-strongswan
+rg=pfsense-strongswan
 location='centralindia'
 vhdUri=https://wadvhds.blob.core.windows.net/vhds/pfsense.vhd
 storageType=Premium_LRS
@@ -8,7 +8,7 @@ site1_fw_subnet_name='fw'
 site1_fw_subnet_address='10.1.0.0/24'
 site1_vm_subnet_name='vm'
 site1_vm_subnet_address='10.1.1.0/24'
-site1_fw_vti_ip=192.168.1.11
+site1_fw_vti_ip=10.1.0.200
 site1_fw_asn=65521
 
 site2_vnet_name='site2'
@@ -17,7 +17,7 @@ site2_fw_subnet_name='fw'
 site2_fw_subnet_address='10.2.0.0/24'
 site2_vm_subnet_name='vm'
 site2_vm_subnet_address='10.2.1.0/24'
-site2_fw_vti_ip=192.168.1.12
+site2_fw_vti_ip=10.2.0.200
 site2_fw_asn=65522
 
 vm_size=Standard_B2ats_v2
@@ -149,18 +149,17 @@ az network route-table route create -g $rg -n to-site2 --address-prefix $site1_v
 az network vnet subnet update -g $rg -n $site2_vm_subnet_name --vnet-name $site2_vnet_name --route-table $site2_vnet_name -o none
 
 # Download config files
-site1_config=pfsense-vti-config.xml
-#curl -o $site1_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/pfsense-vti-config.xml
-sed -i -e "s/52\.172\.215\.83/${site1_fw_public_ip}/g" -e "s/52\.172\.221\.222/${site2_fw_pubip}/g" $site1_config
-#scp -o StrictHostKeyChecking=no admin@$site1_fw_public_ip:/var/etc/frr/frr.conf ./frr.conf
+site1_config=~/pfsense-vti-config.xml
+curl -o $site1_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/pfsense-vti-config.xml
+sed -i -e "s/20\.244\.125\.121/${site1_fw_public_ip}/g" -e "s/20\.204\.160\.195/${site2_fw_pubip}/g" $site1_config
 # Copying config files to site1 pfsense
-echo -e "\e[1;36mCopying configuration files to $site1_vnet_name-fw and installing opnsense firewall...\e[0m"
+echo -e "\e[1;36mCopying configuration files to $site1_vnet_name-fw and rebooting..\e[0m"
 scp -o StrictHostKeyChecking=no $site1_config admin@$site1_fw_public_ip:/cf/conf/config.xml
 echo -e "\e[1;36mRebooting $site1_vnet_name-fw after importing the config file...\e[0m"
 ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "sudo reboot"
 
 # clean up config file
-#rm $site1_config
+rm $site1_config
 
 #######################
 # site2 VPN Config  #
@@ -307,16 +306,31 @@ ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo mv /ho
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo chmod +x /etc/strongswan.d/ipsec-vti.sh"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo ipsec restart"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo service frr restart"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo ipsec statusall"
 
 # clean up config files
 rm $psk_file $ipsec_file $ipsec_vti_file $frr_conf_file
 
+# wait for pfsense to come up
+sleep 120
+# Apply BGP config to site1 pfsense
+echo -e "\e[1;36mCopying and applying BGP on $site1_vnet_name-fw gateway VM...\e[0m"
+scp -o StrictHostKeyChecking=no pfsense_frr.conf admin@$site1_fw_public_ip:/var/etc/frr/frr.conf
+ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "service frr restart"
+
+# Diagnosis
+
 echo -e "\e[1;36mChecking connectivity from $site1_vnet_name-fw to $site2_vnet_name network...\e[0m"
-ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "ping -c 3 $site2_fw_private_ip && ping -c 3 $site2_vm_ip"
+ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "ping -c 3 $site2_fw_vti_ip &&ping -c 3 $site2_fw_private_ip && ping -c 3 $site2_vm_ip"
 
 echo -e "\e[1;36mChecking connectivity from $site2_vnet_name-fwgw to $site1_vnet_name network...\e[0m"
-ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $admin_username@$site2_fw_pubip "ping -c 3 $site1_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip"
-
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $admin_username@$site2_fw_pubip "ping -c 3 $site1_fw_vti_ip && ping -c 3 $site1_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo vtysh -c 'show ip bgp summary'"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo vtysh -c 'show ip route bgp'"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo vtysh -c 'show bgp all'"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo vtysh -c 'show ip bgp neighbors $site1_fw_vti_ip received-routes'"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo vtysh -c 'show ip bgp neighbors $site1_fw_vti_ip advertised-routes'"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo vtysh -c 'show bgp neighbors $site1_fw_vti_ip'"
 
 # clean up config files
 rm $psk_file $ipsec_file $cloudinit_file

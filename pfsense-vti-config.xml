@@ -99,15 +99,10 @@
 			<if>ipsec1</if>
 			<enable></enable>
 			<spoofmac></spoofmac>
+			<mtu>1350</mtu>
 		</opt1>
 	</interfaces>
-	<staticroutes>
-		<route>
-			<network>10.2.0.0/16</network>
-			<gateway>VTI_VTIV4</gateway>
-			<descr><![CDATA[site2 network route]]></descr>
-		</route>
-	</staticroutes>
+	<staticroutes></staticroutes>
 	<dhcpd>
 		<lan>
 			<range>
@@ -271,6 +266,38 @@
 		</rule>
 		<rule>
 			<id></id>
+			<tracker>1747634794</tracker>
+			<type>pass</type>
+			<interface>opt1</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>10.1.0.0/16</address>
+			</source>
+			<destination>
+				<address>10.2.0.0/16</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow site1 to site2 traffic visa IPSec]]></descr>
+			<updated>
+				<time>1747634794</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1747634794</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
 			<tracker>1747574285</tracker>
 			<type>pass</type>
 			<interface>opt1</interface>
@@ -285,21 +312,21 @@
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
 			<source>
-				<address>192.168.1.0/24</address>
+				<address>10.2.0.0/16</address>
 			</source>
 			<destination>
-				<address>192.168.1.0/24</address>
+				<address>10.1.0.0/16</address>
 			</destination>
 			<log></log>
-			<descr><![CDATA[Allow VTI IPSec inter-traffic]]></descr>
-			<updated>
-				<time>1747574285</time>
-				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
-			</updated>
+			<descr><![CDATA[Allow site2 to site1 traffic via IPSec]]></descr>
 			<created>
 				<time>1747574285</time>
 				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</created>
+			<updated>
+				<time>1747634741</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
 		</rule>
 		<separator>
 			<wan></wan>
@@ -307,20 +334,19 @@
 			<opt1></opt1>
 		</separator>
 	</filter>
-	<shaper>
-	</shaper>
+	<shaper></shaper>
 	<ipsec>
 		<client></client>
 		<phase1>
 			<ikeid>1</ikeid>
 			<iketype>ikev2</iketype>
 			<interface>wan</interface>
-			<remote-gateway>98.70.108.246</remote-gateway>
+			<remote-gateway>20.204.160.195</remote-gateway>
 			<protocol>inet</protocol>
 			<myid_type>address</myid_type>
-			<myid_data>98.70.107.59</myid_data>
+			<myid_data>20.244.125.121</myid_data>
 			<peerid_type>address</peerid_type>
-			<peerid_data>98.70.108.246</peerid_data>
+			<peerid_data>20.204.160.195</peerid_data>
 			<encryption>
 				<item>
 					<encryption-algorithm>
@@ -358,11 +384,11 @@
 			<reqid>1</reqid>
 			<localid>
 				<type>address</type>
-				<address>192.168.1.11</address>
+				<address>10.1.0.200</address>
 			</localid>
 			<remoteid>
 				<type>address</type>
-				<address>192.168.1.12</address>
+				<address>10.2.0.200</address>
 			</remoteid>
 			<protocol>esp</protocol>
 			<encryption-algorithm-option>
@@ -504,8 +530,7 @@
 		<period>10</period>
 	</widgets>
 	<openvpn></openvpn>
-	<dnshaper>
-	</dnshaper>
+	<dnshaper></dnshaper>
 	<unbound>
 		<enable></enable>
 		<dnssec></dnssec>
@@ -519,8 +544,7 @@
 	<vlans></vlans>
 	<qinqs></qinqs>
 	<revision>
-		<time>1747574285</time>
-		<description><![CDATA[admin@45.155.47.233 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
+		<time>1747647195</time>
 		<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 	</revision>
 	<gateways>
@@ -546,6 +570,304 @@
 		</system>
 	</wizardtemp>
 	<ppps></ppps>
+	<dhcrelay></dhcrelay>
+	<dhcrelay6></dhcrelay6>
+	<installedpackages>
+		<package>
+			<name>FRR</name>
+			<internal_name>frr</internal_name>
+			<descr><![CDATA[FRR routing daemon for BGP, OSPF, OSPF6 and RIP.&lt;br /&gt;
+			&lt;strong&gt;Conflicts with Quagga OSPF and OpenBGPD; these packages cannot be installed at the same time.&lt;/strong&gt;]]></descr>
+			<version>2.0.2_1</version>
+			<configurationfile>frr.xml</configurationfile>
+			<tabs>
+				<tab>
+					<text><![CDATA[Global Settings]]></text>
+					<url>pkg_edit.php?xml=frr.xml</url>
+					<active></active>
+				</tab>
+				<tab>
+					<text><![CDATA[Access Lists]]></text>
+					<url>pkg.php?xml=frr/frr_global_acls.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[Prefix Lists]]></text>
+					<url>pkg.php?xml=frr/frr_global_prefixes.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[Route Maps]]></text>
+					<url>pkg.php?xml=frr/frr_global_routemaps.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[Raw Config]]></text>
+					<url>pkg_edit.php?xml=frr/frr_global_raw.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[[BFD]]]></text>
+					<url>pkg_edit.php?xml=frr/frr_bfd.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[[BGP]]]></text>
+					<url>pkg_edit.php?xml=frr/frr_bgp.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[[OSPF]]]></text>
+					<url>pkg_edit.php?xml=frr/frr_ospf.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[[OSPF6]]]></text>
+					<url>pkg_edit.php?xml=frr/frr_ospf6.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[[RIP]]]></text>
+					<url>pkg_edit.php?xml=frr/frr_rip.xml</url>
+				</tab>
+				<tab>
+					<text><![CDATA[Status]]></text>
+					<url>/status_frr.php</url>
+				</tab>
+			</tabs>
+			<include_file>/usr/local/pkg/frr.inc</include_file>
+			<plugins>
+				<item>
+					<type>plugin_carp</type>
+				</item>
+				<item>
+					<type>plugin_statusoutput</type>
+				</item>
+			</plugins>
+		</package>
+		<menu>
+			<name>FRR Global/Zebra</name>
+			<section>Services</section>
+			<configfile>frr.xml</configfile>
+			<url>/pkg_edit.php?xml=frr.xml</url>
+		</menu>
+		<menu>
+			<name>FRR BFD</name>
+			<section>Services</section>
+			<configfile>frr.xml</configfile>
+			<url>/pkg_edit.php?xml=frr/frr_bfd.xml</url>
+		</menu>
+		<menu>
+			<name>FRR BGP</name>
+			<section>Services</section>
+			<configfile>frr.xml</configfile>
+			<url>/pkg_edit.php?xml=frr/frr_bgp.xml</url>
+		</menu>
+		<menu>
+			<name>FRR OSPF</name>
+			<section>Services</section>
+			<configfile>frr.xml</configfile>
+			<url>/pkg_edit.php?xml=frr/frr_ospf.xml</url>
+		</menu>
+		<menu>
+			<name>FRR OSPF6</name>
+			<section>Services</section>
+			<configfile>frr.xml</configfile>
+			<url>/pkg_edit.php?xml=frr/frr_ospf6.xml</url>
+		</menu>
+		<menu>
+			<name>FRR RIP</name>
+			<section>Services</section>
+			<configfile>frr.xml</configfile>
+			<url>/pkg_edit.php?xml=frr/frr_rip.xml</url>
+		</menu>
+		<menu>
+			<name>FRR</name>
+			<section>Status</section>
+			<configfile>frr.xml</configfile>
+			<url>/status_frr.php</url>
+		</menu>
+		<service>
+			<name>FRR zebra</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>zebra</executable>
+			<description><![CDATA[FRR core/abstraction daemon]]></description>
+		</service>
+		<service>
+			<name>FRR staticd</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>staticd</executable>
+			<description><![CDATA[FRR static route daemon]]></description>
+		</service>
+		<service>
+			<name>FRR mgmtd</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>mgmtd</executable>
+			<description><![CDATA[FRR management daemon]]></description>
+		</service>
+		<service>
+			<name>FRR bfdd</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>bfdd</executable>
+			<description><![CDATA[FRR BFD daemon]]></description>
+		</service>
+		<service>
+			<name>FRR bgpd</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>bgpd</executable>
+			<description><![CDATA[FRR BGP routing daemon]]></description>
+		</service>
+		<service>
+			<name>FRR ospfd</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>ospfd</executable>
+			<description><![CDATA[FRR OSPF routing daemon]]></description>
+		</service>
+		<service>
+			<name>FRR ospf6d</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>ospf6d</executable>
+			<description><![CDATA[FRR OSPF6 routing daemon]]></description>
+		</service>
+		<service>
+			<name>FRR ripd</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>ripd</executable>
+			<description><![CDATA[FRR RIP routing daemon]]></description>
+		</service>
+		<service>
+			<name>FRR watchfrr</name>
+			<rcfile>frr.sh</rcfile>
+			<executable>watchfrr</executable>
+			<description><![CDATA[FRR watchfrr watchdog daemon]]></description>
+		</service>
+		<frrbgp>
+			<config>
+				<enable>on</enable>
+				<adjacencylog></adjacencylog>
+				<asnum>65521</asnum>
+				<routerid>10.1.0.250</routerid>
+				<timers_keepalive></timers_keepalive>
+				<timers_holdtime></timers_holdtime>
+				<timers_updatedelay></timers_updatedelay>
+				<timers_peerwait></timers_peerwait>
+				<nodefipv4unicast></nodefipv4unicast>
+				<enablesnmpagentx></enablesnmpagentx>
+				<enablerpki></enablerpki>
+				<shutdown></shutdown>
+				<shutdownmessage></shutdownmessage>
+				<grglobaldisable></grglobaldisable>
+				<disablepreservefwstate></disablepreservefwstate>
+				<grstalepathtime></grstalepathtime>
+				<grrestarttimetime></grrestarttimetime>
+				<grselectdefertime></grselectdefertime>
+				<grribstaletime></grribstaletime>
+				<gsenable></gsenable>
+				<rpkipollingperiod></rpkipollingperiod>
+				<rpkiexpireinterval></rpkiexpireinterval>
+				<rpkiretryinterval></rpkiretryinterval>
+				<redistributeconnected>no</redistributeconnected>
+				<redistributestatic>no</redistributestatic>
+				<redistributekernel>no</redistributekernel>
+				<redistributeospf>no</redistributeospf>
+				<redistributeospf6>no</redistributeospf6>
+				<redistributerip>no</redistributerip>
+				<row>
+					<distributeroutevalue>10.1.0.0/16</distributeroutevalue>
+					<distributeroutemap>none</distributeroutemap>
+				</row>
+			</config>
+		</frrbgp>
+		<frr>
+			<config>
+				<enable>on</enable>
+				<routerid></routerid>
+				<password><![CDATA[pfsense]]></password>
+				<passwordencrypt></passwordencrypt>
+				<ignoreipsecrestart></ignoreipsecrestart>
+				<carpstatusvid>none</carpstatusvid>
+				<logging></logging>
+				<pkgloglevel>0</pkgloglevel>
+				<enablesnmpagentx></enablesnmpagentx>
+				<row>
+					<routevalue></routevalue>
+					<routetarget>none</routetarget>
+				</row>
+				<nht>none</nht>
+				<service_force_restart>Force Service Restart</service_force_restart>
+			</config>
+		</frr>
+		<frrbgpneighbors>
+			<config>
+				<peer>10.2.0.200</peer>
+				<descr><![CDATA[site2-fw]]></descr>
+				<peergroup>none</peergroup>
+				<password></password>
+				<password_type><![CDATA[none]]></password_type>
+				<shutdown></shutdown>
+				<shutdownmessage></shutdownmessage>
+				<shutdownautortt></shutdownautortt>
+				<asnum>65522</asnum>
+				<updatesource_type>ipv4</updatesource_type>
+				<updatesource>default</updatesource>
+				<bothaf></bothaf>
+				<defaultoriginate>no</defaultoriginate>
+				<defaultoriginateroutemap>none</defaultoriginateroutemap>
+				<sendcommunity>disabled</sendcommunity>
+				<nexthopself>disabled</nexthopself>
+				<softreconfigurationinbound></softreconfigurationinbound>
+				<timers_keepalive></timers_keepalive>
+				<timers_holdtime></timers_holdtime>
+				<timers_connect></timers_connect>
+				<distribute_in>none</distribute_in>
+				<distribute_out>none</distribute_out>
+				<prefixfilter_in>none</prefixfilter_in>
+				<prefixfilter_out>none</prefixfilter_out>
+				<aspathfilter_in>none</aspathfilter_in>
+				<aspathfilter_out>none</aspathfilter_out>
+				<routemap_in>none</routemap_in>
+				<routemap_out>none</routemap_out>
+				<unsuppressmap>none</unsuppressmap>
+				<bfdenable></bfdenable>
+				<bfd_check_control_plane_failure></bfd_check_control_plane_failure>
+				<bfd_peer></bfd_peer>
+				<grmode>default</grmode>
+				<weight></weight>
+				<passive></passive>
+				<addpathtxallpaths></addpathtxallpaths>
+				<addpathtxbestpathperas></addpathtxbestpathperas>
+				<advertisementinterval></advertisementinterval>
+				<allowasin>disabled</allowasin>
+				<asoverride></asoverride>
+				<attributeunchanged></attributeunchanged>
+				<attributeunchanged_aspath></attributeunchanged_aspath>
+				<attributeunchanged_med></attributeunchanged_med>
+				<attributeunchanged_nexthop></attributeunchanged_nexthop>
+				<capability></capability>
+				<capability_nexthop></capability_nexthop>
+				<capability_orf>disabled</capability_orf>
+				<dontcapabilitynegotiate></dontcapabilitynegotiate>
+				<overridecapability></overridecapability>
+				<ttlsecurityhops></ttlsecurityhops>
+				<disableconnectedcheck></disableconnectedcheck>
+				<ebgpmultihop></ebgpmultihop>
+				<enforcemultihop></enforcemultihop>
+				<localas_num></localas_num>
+				<localas_noprepend></localas_noprepend>
+				<localas_replaceas></localas_replaceas>
+				<maximumprefix_num></maximumprefix_num>
+				<maximumprefix_threshold></maximumprefix_threshold>
+				<maximumprefix_warnonly></maximumprefix_warnonly>
+				<maximumprefix_restart></maximumprefix_restart>
+				<maximumprefixout_num></maximumprefixout_num>
+				<removeprivateas></removeprivateas>
+				<removeprivateas_all></removeprivateas_all>
+				<removeprivateas_replace></removeprivateas_replace>
+				<routeclient_reflector></routeclient_reflector>
+				<routeclient_server></routeclient_server>
+				<solo></solo>
+			</config>
+		</frrbgpneighbors>
+	</installedpackages>
+	<sysctl>
+		<item>
+			<tunable>kern.ipc.maxsockbuf</tunable>
+			<value>16777216</value>
+			<descr><![CDATA[Maximum socket buffer size - set by FRR package]]></descr>
+		</item>
+	</sysctl>
 	<sshdata>
 		<sshkeyfile>
 			<filename>ssh_host_rsa_key</filename>
