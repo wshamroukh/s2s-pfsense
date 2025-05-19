@@ -1,4 +1,4 @@
-rg=pfsense-strongswan
+rg=pfsense-s2s-vti-bgp-strongswan
 location='centralindia'
 vhdUri=https://wadvhds.blob.core.windows.net/vhds/pfsense.vhd
 storageType=Premium_LRS
