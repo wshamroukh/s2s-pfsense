@@ -335,7 +335,7 @@ ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo vtysh 
 # clean up config files
 rm $psk_file $ipsec_file $cloudinit_file
 
-# Follow this documentation to configure pfsense ipsec s2s vpn between the two sites: https://docs.netgate.com/pfsense/en/latest/recipes/ipsec-s2s-psk.html but take the following into account:
+# Follow this documentation to configure pfsense ipsec s2s vpn between the two sites: https://docs.netgate.com/pfsense/en/latest/vpn/ipsec/routed-vti.html but take the following into account:
 # 1. In phase 1, set 'My identifier'/'Peer identifier' to IP address and put the public ip address of each pfsense firewall
 # 2. in phase 2, set the 'local network'/'remote network' to network and put the $site1_vnet_address and $site2_vnet_address
 # 3. In the IPSec firewall rule, set the 'destination' to 'network' and out source as other pfsense vnet address space, while destination as the current pfsense vnet address space
