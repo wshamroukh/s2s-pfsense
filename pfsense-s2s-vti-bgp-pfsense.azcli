@@ -102,10 +102,10 @@ az network route-table route create -g $rg -n to-site1-vti --address-prefix 10.1
 az network vnet subnet update -g $rg -n $site2_vm_subnet_name --vnet-name $site2_vnet_name --route-table $site2_vnet_name -o none
 
 # Download config files
-site1_config=~/site1-pfsense-config.xml
+site1_config=~/site1_vti_bgp_config.xml
 curl -o $site1_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/site1_vti_bgp_config.xml
 sed -i -e "s/52\.172\.203\.192/${site1_fw_public_ip}/g" -e "s/52\.140\.75\.226/${site2_fw_public_ip}/g" $site1_config
-site2_config=~/site2-pfsense-config.xml
+site2_config=~/site2_vti_bgp_config.xml
 curl -o $site2_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/site2_vti_bgp_config.xml
 sed -i -e "s/52\.172\.203\.192/${site1_fw_public_ip}/g" -e "s/52\.140\.75\.226/${site2_fw_public_ip}/g" $site2_config
 
@@ -129,10 +129,12 @@ echo -e "\e[1;36mWaiting for pfsense to boot up...\e[0m"
 sleep 120
 
 echo -e "\e[1;36mChecking connectivity from $site1_vnet_name-fw to $site2_vnet_name network...\e[0m"
-ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "ping -c 3 $site2_fw_wan_private_ip && ping -c 3 $site2_fw_lan_private_ip && ping -c 3 $site2_vm_ip"
+ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "ping -c 3 10.116.0.2 && ping -c 3 $site2_fw_wan_private_ip && ping -c 3 $site2_fw_lan_private_ip && ping -c 3 $site2_vm_ip"
+ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "vtysh -c 'show bgp summary' && vtysh -c 'show ip route' && vtysh -c 'show ip bgp'"
 
 echo -e "\e[1;36mChecking connectivity from $site2_vnet_name-fw to $site1_vnet_name network...\e[0m"
-ssh -o StrictHostKeyChecking=no admin@$site2_fw_public_ip "ping -c 3 $site1_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip"
+ssh -o StrictHostKeyChecking=no admin@$site2_fw_public_ip "ping -c 3 10.116.0.1 && ping -c 3 $site1_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip"
+ssh -o StrictHostKeyChecking=no admin@$site2_fw_public_ip "vtysh -c 'show bgp summary' && vtysh -c 'show ip route' && vtysh -c 'show ip bgp'"
 
 
 # Follow this documentation to configure pfsense ipsec s2s vpn between the two sites: https://docs.netgate.com/pfsense/en/latest/vpn/ipsec/routed-vti.html but take the following into account:

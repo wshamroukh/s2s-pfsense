@@ -96,7 +96,7 @@ az network vnet subnet update -g $rg -n $site1_vm_subnet_name --vnet-name $site1
 # site2 route table
 echo -e "\e[1;36mCreating $site2_vnet_name route table....\e[0m"
 az network route-table create -g $rg -n $site2_vnet_name -l $location -o none
-az network route-table route create -g $rg -n to-site2 --address-prefix $site1_vnet_address --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
+az network route-table route create -g $rg -n to-site1 --address-prefix $site1_vnet_address --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
 az network vnet subnet update -g $rg -n $site2_vm_subnet_name --vnet-name $site2_vnet_name --route-table $site2_vnet_name -o none
 
 # Download config files
