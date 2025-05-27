@@ -298,7 +298,7 @@ EOF
 ##### copy files to onprem gw
 echo -e "\e[1;36mCopying and applying S2S/BGP VPN Config files to $site2_vnet_name-fw gateway VM...\e[0m"
 scp -o StrictHostKeyChecking=no $psk_file $ipsec_file $ipsec_vti_file $frr_conf_file $site2_fw_pubip:/home/$admin_username
-scp -o StrictHostKeyChecking=no ~/.ssh/* $site2_fw_pubip:/home/$admin_username/.ssh/
+scp -o StrictHostKeyChecking=no ~/.ssh/id_rsa $site2_fw_pubip:/home/$admin_username/.ssh/
 # This is needed for clients to connect to internet through onprem gw
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo mv /home/$admin_username/frr.conf /etc/frr/frr.conf"

@@ -160,7 +160,7 @@ EOF
 ##### copy files to onprem gw
 echo -e "\e[1;36mCopying and applying S2S VPN Config files to $site2_vnet_name-gw Gateway VM...\e[0m"
 scp -o StrictHostKeyChecking=no $psk_file $ipsec_file $site2_gw_pubip:/home/$admin_username
-scp -o StrictHostKeyChecking=no ~/.ssh/* $site2_gw_pubip:/home/$admin_username/.ssh/
+scp -o StrictHostKeyChecking=no ~/.ssh/id_rsa $site2_gw_pubip:/home/$admin_username/.ssh/
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_gw_pubip "sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_gw_pubip "sudo cp /home/$admin_username/ipsec.* /etc/"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_gw_pubip "sudo ipsec restart"
