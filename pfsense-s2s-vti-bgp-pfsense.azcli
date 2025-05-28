@@ -8,6 +8,8 @@ site1_fw_subnet_name='fw'
 site1_fw_subnet_address='10.1.0.0/24'
 site1_vm_subnet_name='vm'
 site1_vm_subnet_address='10.1.1.0/24'
+site1_fw_vti_ip=10.116.0.1
+site1_fw_asn=65551
 
 site2_vnet_name='site2'
 site2_vnet_address='10.2.0.0/16'
@@ -15,6 +17,8 @@ site2_fw_subnet_name='fw'
 site2_fw_subnet_address='10.2.0.0/24'
 site2_vm_subnet_name='vm'
 site2_vm_subnet_address='10.2.1.0/24'
+site2_fw_vti_ip=10.116.0.2
+site2_fw_asn=65552
 
 vm_size=Standard_B2ats_v2
 admin_username=$(whoami)
@@ -91,14 +95,16 @@ site2_vm_ip=$(az network nic show -g $rg -n $site2_vnet_name --query ipConfigura
 echo -e "\e[1;36mCreating $site1_vnet_name route table....\e[0m"
 az network route-table create -g $rg -n $site1_vnet_name -l $location -o none
 az network route-table route create -g $rg -n to-site2 --address-prefix $site2_vnet_address --next-hop-type virtualappliance --route-table-name $site1_vnet_name --next-hop-ip-address $site1_fw_lan_private_ip -o none
-az network route-table route create -g $rg -n to-site2-vti --address-prefix 10.116.0.2/32 --next-hop-type virtualappliance --route-table-name $site1_vnet_name --next-hop-ip-address $site1_fw_lan_private_ip -o none
+az network route-table route create -g $rg -n to-site1-vti --address-prefix ${site1_fw_vti_ip}/32 --next-hop-type virtualappliance --route-table-name $site1_vnet_name --next-hop-ip-address $site1_fw_lan_private_ip -o none
+az network route-table route create -g $rg -n to-site2-vti --address-prefix ${site2_fw_vti_ip}/32 --next-hop-type virtualappliance --route-table-name $site1_vnet_name --next-hop-ip-address $site1_fw_lan_private_ip -o none
 az network vnet subnet update -g $rg -n $site1_vm_subnet_name --vnet-name $site1_vnet_name --route-table $site1_vnet_name -o none
 
 # site2 route table
 echo -e "\e[1;36mCreating $site2_vnet_name route table....\e[0m"
 az network route-table create -g $rg -n $site2_vnet_name -l $location -o none
 az network route-table route create -g $rg -n to-site1 --address-prefix $site1_vnet_address --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
-az network route-table route create -g $rg -n to-site1-vti --address-prefix 10.116.0.1/32 --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
+az network route-table route create -g $rg -n to-site1-vti --address-prefix ${site1_fw_vti_ip}/32 --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
+az network route-table route create -g $rg -n to-site2-vti --address-prefix ${site2_fw_vti_ip}/32 --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
 az network vnet subnet update -g $rg -n $site2_vm_subnet_name --vnet-name $site2_vnet_name --route-table $site2_vnet_name -o none
 
 # Download config files
