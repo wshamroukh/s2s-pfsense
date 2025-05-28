@@ -86,13 +86,13 @@ site2_gw_private_ip=$(az network nic show -g $rg -n $site2_vnet_name-gw --query 
 # site1 vm
 echo -e "\e[1;36mCreating $site1_vnet_name VM...\e[0m"
 az network nic create -g $rg -n "$site1_vnet_name" -l $location --vnet-name $site1_vnet_name --subnet $site1_vm_subnet_name -o none
-az vm create -g $rg -n $site1_vnet_name -l $location --image Ubuntu2404 --nics "$site1_vnet_name" --os-disk-name "$site1_vnet_name" --size $vm_size --admin-username $admin_username --admin-password $admin_password --no-wait -o none
+az vm create -g $rg -n $site1_vnet_name -l $location --image Ubuntu2404 --nics "$site1_vnet_name" --os-disk-name "$site1_vnet_name" --size $vm_size --admin-username $admin_username --generate-ssh-keys --no-wait -o none
 site1_vm_ip=$(az network nic show -g $rg -n $site1_vnet_name --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r') && echo $site1_vnet_name vm private ip: $site1_vm_ip
 
 # site2 vm
 echo -e "\e[1;36mCreating $site2_vnet_name VM...\e[0m"
 az network nic create -g $rg -n "$site2_vnet_name" -l $location --vnet-name $site2_vnet_name --subnet $site2_vm_subnet_name -o none
-az vm create -g $rg -n $site2_vnet_name -l $location --image Ubuntu2404 --nics "$site2_vnet_name" --os-disk-name "$site2_vnet_name" --size $vm_size --admin-username $admin_username --admin-password $admin_password --no-wait -o none
+az vm create -g $rg -n $site2_vnet_name -l $location --image Ubuntu2404 --nics "$site2_vnet_name" --os-disk-name "$site2_vnet_name" --size $vm_size --admin-username $admin_username --generate-ssh-keys --no-wait -o none
 site2_vm_ip=$(az network nic show -g $rg -n $site2_vnet_name --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r') && echo $site2_vnet_name vm private ip: $site2_vm_ip
 
 # site1 route table
@@ -104,13 +104,13 @@ az network vnet subnet update -g $rg -n $site1_vm_subnet_name --vnet-name $site1
 # site2 route table
 echo -e "\e[1;36mCreating $site2_vnet_name route table....\e[0m"
 az network route-table create -g $rg -n $site2_vnet_name -l $location -o none
-az network route-table route create -g $rg -n to-site2 --address-prefix $site1_vnet_address --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
+az network route-table route create -g $rg -n to-site2 --address-prefix $site1_vnet_address --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_gw_private_ip -o none
 az network vnet subnet update -g $rg -n $site2_vm_subnet_name --vnet-name $site2_vnet_name --route-table $site2_vnet_name -o none
 
 # Download config files
 site1_config=~/site1-pfsense-config.xml
 curl -o $site1_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/site1-pfsense-config.xml
-sed -i -e "s/20\.204\.168\.102/${site1_fw_public_ip}/g" -e "s/4\.240\.60\.81/${site2_gw_pubip}/g" $site1_config
+sed -i -e "s/20\.204\.179\.189/${site1_fw_public_ip}/g" -e "s/4\.213\.183\.129/${site2_gw_pubip}/g" $site1_config
 
 # Copying config files to site1 pfsense
 echo -e "\e[1;36mCopying configuration files to $site1_vnet_name-fw and installing opnsense firewall...\e[0m"
@@ -162,6 +162,10 @@ scp -o StrictHostKeyChecking=no $psk_file $ipsec_file $site2_gw_pubip:/home/$adm
 scp -o StrictHostKeyChecking=no ~/.ssh/id_rsa $site2_gw_pubip:/home/$admin_username/.ssh/
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_gw_pubip "sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_gw_pubip "sudo cp /home/$admin_username/ipsec.* /etc/"
+
+# wait for pfsense vm to come up
+sleep 90
+
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_gw_pubip "sudo ipsec restart"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_gw_pubip "sudo ipsec status"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_gw_pubip "sudo ipsec statusall"
