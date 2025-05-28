@@ -36,6 +36,7 @@ runcmd:
   - sudo apt install -y strongswan inetutils-traceroute net-tools
   - sudo sed -i "/bgpd=no/ s//bgpd=yes/" /etc/frr/daemons
   - sudo service frr restart
+  - sudo systemctl enable ipsec
   - cp /etc/ipsec.conf /etc/ipsec.conf.bak
   - cp /etc/ipsec.secrets /etc/ipsec.secrets.bak
   - echo "net.ipv4.conf.all.forwarding=1" | sudo tee -a /etc/sysctl.conf
@@ -82,19 +83,6 @@ site1_fw_nic_default_gw=$(first_ip $site1_fw_subnet_address) && echo $site1_vnet
 echo -e "\e[1;36mEnabling VM boot diagnostics for $site1_vnet_name-fw...\e[0m"
 az vm boot-diagnostics enable -g $rg -n $site1_vnet_name-fw -o none
 
-# # site1 gw nsg
-# echo -e "\e[1;36mCreating $site1_vnet_name-fw NSG...\e[0m"
-# az network nsg create -g $rg -n $site1_vnet_name-fw -l $location -o none
-# az network nsg rule create -g $rg -n AllowSSHin --nsg-name $site1_vnet_name-fw --priority 1000 --access Allow --description AllowSSH --protocol Tcp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 22 --source-address-prefixes $myip --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowHTTPin --nsg-name $site1_vnet_name-fw --priority 1010 --access Allow --description AllowHTTP --protocol Tcp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 80 --source-address-prefixes $myip --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowHTTPSin --nsg-name $site1_vnet_name-fw --priority 1020 --access Allow --description AllowHTTPS --protocol Tcp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 443 --source-address-prefixes $myip --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowIKE --nsg-name $site1_vnet_name-fw --priority 1030 --access Allow --description AllowIKE --protocol Udp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 4500 --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowIPSec --nsg-name $site1_vnet_name-fw --priority 1040 --access Allow --description AllowIPSec --protocol Udp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 500 --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowICMPin --nsg-name $site1_vnet_name-fw --priority 1050 --access Allow --description AllowICMP --protocol Icmp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges '*' --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowSSHout --nsg-name $site1_vnet_name-fw --priority 1000 --access Allow --description AllowSSH --protocol Tcp --direction Outbound --destination-address-prefixes '*' --destination-port-ranges 22 --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowICMPout --nsg-name $site1_vnet_name-fw --priority 1010 --access Allow --description AllowICMP --protocol Icmp --direction Outbound --destination-address-prefixes '*' --destination-port-ranges '*' --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network vnet subnet update -g $rg -n $site1_fw_subnet_name --vnet-name $site1_vnet_name --nsg $site1_vnet_name-fw -o none
-
 # site2 vnet
 echo -e "\e[1;36mCreating $site2_vnet_name VNet...\e[0m"
 az network vnet create -g $rg -n $site2_vnet_name -l $location --address-prefixes $site2_vnet_address --subnet-name $site2_vm_subnet_name --subnet-prefixes $site2_vm_subnet_address -o none
@@ -110,43 +98,30 @@ site2_fw_pubip=$(az network public-ip show -g $rg -n $site2_vnet_name-fw --query
 site2_fw_private_ip=$(az network nic show -g $rg -n $site2_vnet_name-fw --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r')  && echo $site2_vnet_name-fw private ip: $site2_fw_private_ip
 site2_fw_nic_default_gw=$(first_ip $site2_fw_subnet_address) && echo $site2_vnet_name-fw default gateway ip: $site2_fw_nic_default_gw
 
-# # site2 gw nsg
-# echo -e "\e[1;36mCreating $site2_vnet_name-fw NSG...\e[0m"
-# az network nsg create -g $rg -n $site2_vnet_name-fw -l $location -o none
-# az network nsg rule create -g $rg -n AllowSSHin --nsg-name $site2_vnet_name-fw --priority 1000 --access Allow --description AllowSSH --protocol Tcp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 22 --source-address-prefixes $myip --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowHTTPin --nsg-name $site2_vnet_name-fw --priority 1010 --access Allow --description AllowHTTP --protocol Tcp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 80 --source-address-prefixes $myip --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowHTTPSin --nsg-name $site2_vnet_name-fw --priority 1020 --access Allow --description AllowHTTPS --protocol Tcp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 443 --source-address-prefixes $myip --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowIKE --nsg-name $site2_vnet_name-fw --priority 1030 --access Allow --description AllowIKE --protocol Udp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 4500 --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowIPSec --nsg-name $site2_vnet_name-fw --priority 1040 --access Allow --description AllowIPSec --protocol Udp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges 500 --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowICMPin --nsg-name $site2_vnet_name-fw --priority 1050 --access Allow --description AllowICMP --protocol Icmp --direction Inbound --destination-address-prefixes '*' --destination-port-ranges '*' --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowSSHout --nsg-name $site2_vnet_name-fw --priority 1000 --access Allow --description AllowSSH --protocol Tcp --direction Outbound --destination-address-prefixes '*' --destination-port-ranges 22 --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network nsg rule create -g $rg -n AllowICMPout --nsg-name $site2_vnet_name-fw --priority 1010 --access Allow --description AllowICMP --protocol Icmp --direction Outbound --destination-address-prefixes '*' --destination-port-ranges '*' --source-address-prefixes '*' --source-port-ranges '*' -o none
-# az network vnet subnet update -g $rg -n $site2_fw_subnet_name --vnet-name $site2_vnet_name --nsg $site2_vnet_name-fw -o none
-
 # site1 vm
 echo -e "\e[1;36mCreating $site1_vnet_name VM...\e[0m"
 az network nic create -g $rg -n "$site1_vnet_name" -l $location --vnet-name $site1_vnet_name --subnet $site1_vm_subnet_name -o none
-az vm create -g $rg -n $site1_vnet_name -l $location --image Ubuntu2404 --nics "$site1_vnet_name" --os-disk-name "$site1_vnet_name" --size $vm_size --admin-username $admin_username --admin-password $admin_password --no-wait -o none
+az vm create -g $rg -n $site1_vnet_name -l $location --image Ubuntu2404 --nics "$site1_vnet_name" --os-disk-name "$site1_vnet_name" --size $vm_size --admin-username $admin_username --generate-ssh-keys --no-wait -o none
 site1_vm_ip=$(az network nic show -g $rg -n $site1_vnet_name --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r') && echo $site1_vnet_name vm private ip: $site1_vm_ip
 
 # site2 vm
 echo -e "\e[1;36mCreating $site2_vnet_name VM...\e[0m"
 az network nic create -g $rg -n "$site2_vnet_name" -l $location --vnet-name $site2_vnet_name --subnet $site2_vm_subnet_name -o none
-az vm create -g $rg -n $site2_vnet_name -l $location --image Ubuntu2404 --nics "$site2_vnet_name" --os-disk-name "$site2_vnet_name" --size $vm_size --admin-username $admin_username --admin-password $admin_password --no-wait -o none
+az vm create -g $rg -n $site2_vnet_name -l $location --image Ubuntu2404 --nics "$site2_vnet_name" --os-disk-name "$site2_vnet_name" --size $vm_size --admin-username $admin_username --generate-ssh-keys --no-wait -o none
 site2_vm_ip=$(az network nic show -g $rg -n $site2_vnet_name --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r') && echo $site2_vnet_name vm private ip: $site2_vm_ip
 
 # site1 route table
 echo -e "\e[1;36mCreating $site1_vnet_name route table....\e[0m"
 az network route-table create -g $rg -n $site1_vnet_name -l $location -o none
 az network route-table route create -g $rg -n to-site2 --address-prefix $site2_vnet_address --next-hop-type virtualappliance --route-table-name $site1_vnet_name --next-hop-ip-address $site1_fw_lan_private_ip -o none
-az network route-table route create -g $rg -n to-site2-vti --address-prefix 10.116.0.2/32 --next-hop-type virtualappliance --route-table-name $site1_vnet_name --next-hop-ip-address $site1_fw_lan_private_ip -o none
+az network route-table route create -g $rg -n to-site2-vti --address-prefix ${site2_fw_vti_ip}/32 --next-hop-type virtualappliance --route-table-name $site1_vnet_name --next-hop-ip-address $site1_fw_lan_private_ip -o none
 az network vnet subnet update -g $rg -n $site1_vm_subnet_name --vnet-name $site1_vnet_name --route-table $site1_vnet_name -o none
 
 # site2 route table
 echo -e "\e[1;36mCreating $site2_vnet_name route table....\e[0m"
 az network route-table create -g $rg -n $site2_vnet_name -l $location -o none
-az network route-table route create -g $rg -n to-site1 --address-prefix $site1_vnet_address --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
-az network route-table route create -g $rg -n to-site1-vti --address-prefix 10.116.0.1/32 --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_lan_private_ip -o none
+az network route-table route create -g $rg -n to-site1 --address-prefix $site1_vnet_address --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_private_ip -o none
+az network route-table route create -g $rg -n to-site1-vti --address-prefix ${site1_fw_vti_ip}/32 --next-hop-type virtualappliance --route-table-name $site2_vnet_name --next-hop-ip-address $site2_fw_private_ip -o none
 az network vnet subnet update -g $rg -n $site2_vm_subnet_name --vnet-name $site2_vnet_name --route-table $site2_vnet_name -o none
 
 # Download config files
@@ -160,7 +135,7 @@ echo -e "\e[1;36mRebooting $site1_vnet_name-fw after importing the config file..
 ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "sudo reboot"
 
 # clean up config file
-rm $site1_config
+rm $cloudinit_file $site1_config
 
 #######################
 # site2 VPN Config  #
@@ -261,11 +236,8 @@ sysctl -w net.ipv4.conf.eth0.disable_policy=1
 EOT
 
 sed -i "/\$site2_fw_vti_ip/ s//$site2_fw_vti_ip/" $ipsec_vti_file
-sed -i "/\$site2_fw_vti1/ s//$site2_fw_vti1/" $ipsec_vti_file
 sed -i "/\$site1_fw_vti_ip/ s//$site1_fw_vti_ip/" $ipsec_vti_file
-sed -i "/\$site1_fw_bgp_ip1/ s//$site1_fw_bgp_ip1/" $ipsec_vti_file
 sed -i "/\$site1_vnet_name-fw0/ s//$site1_vnet_name-fw0/" $ipsec_vti_file
-sed -i "/\$site1_vnet_name-fw1/ s//$site1_vnet_name-fw1/" $ipsec_vti_file
 
 # frr.conf
 frr_conf_file=~/frr.conf
@@ -320,10 +292,8 @@ ssh -o StrictHostKeyChecking=no admin@$site1_fw_public_ip "sudo vtysh -c 'show i
 
 echo -e "\e[1;36mChecking connectivity from $site2_vnet_name-fwgw to $site1_vnet_name network...\e[0m"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $admin_username@$site2_fw_pubip "ping -c 3 $site1_fw_vti_ip && ping -c 3 $site1_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip"
+ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $admin_username@$site2_fw_pubip "ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $admin_username@$site2_vm_ip 'ping -c 3 $site1_fw_vti_ip && ping -c 3 $site1_fw_wan_private_ip && ping -c 3 $site1_fw_lan_private_ip && ping -c 3 $site1_vm_ip'"
 ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $site2_fw_pubip "sudo vtysh -c 'show ip bgp summary' && sudo vtysh -c 'show ip route bgp' && sudo vtysh -c 'show bgp all' && sudo vtysh -c 'show ip bgp neighbors $site1_fw_vti_ip received-routes' && sudo vtysh -c 'show ip bgp neighbors $site1_fw_vti_ip advertised-routes' && sudo vtysh -c 'show bgp neighbors $site1_fw_vti_ip'"
-
-# clean up config files
-rm $psk_file $ipsec_file $cloudinit_file
 
 # Follow this documentation to configure pfsense ipsec s2s vpn between the two sites: https://docs.netgate.com/pfsense/en/latest/vpn/ipsec/routed-vti.html but take the following into account:
 # 1. In phase 1, set 'My identifier'/'Peer identifier' to IP address and put the public ip address of each pfsense firewall
