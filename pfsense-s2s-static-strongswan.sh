@@ -1,4 +1,4 @@
-rg=pfsense-s2s-strongswan
+rg=pfsense-s2s-static-strongswan
 location='centralindia'
 vhdUri=https://wadvhds.blob.core.windows.net/vhds/pfsense.vhd
 storageType=Premium_LRS
@@ -32,8 +32,7 @@ runcmd:
   - sudo apt install -y strongswan inetutils-traceroute net-tools
   - sudo sed -i "/bgpd=no/ s//bgpd=yes/" /etc/frr/daemons
   - sudo service frr restart
-  - touch /etc/strongswan.d/ipsec-vti.sh
-  - chmod +x /etc/strongswan.d/ipsec-vti.sh
+  - sudo systemctl enable ipsec
   - cp /etc/ipsec.conf /etc/ipsec.conf.bak
   - cp /etc/ipsec.secrets /etc/ipsec.secrets.bak
   - echo "net.ipv4.conf.all.forwarding=1" | sudo tee -a /etc/sysctl.conf
