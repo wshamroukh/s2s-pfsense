@@ -232,9 +232,9 @@ case "$PLUTO_CONNECTION" in
     VTI_INTERFACE=vti0
     VTI_LOCALADDR=$site2_fw_vti_ip/32
     VTI_REMOTEADDR=$site1_fw_vti_ip/32
+    echo "`date` - ${PLUTO_VERB} - ${PLUTO_CONNECTION} - $VTI_INTERFACE" >> /tmp/vtitrace.log
     ;;
 esac
-echo "`date` ${PLUTO_VERB} $VTI_INTERFACE" >> /tmp/vtitrace.log
 case "${PLUTO_VERB}" in
     up-client)
         $IP link add ${VTI_INTERFACE} type vti local ${PLUTO_ME} remote ${PLUTO_PEER} okey ${PLUTO_MARK_OUT_ARR[0]} ikey ${PLUTO_MARK_IN_ARR[0]}
