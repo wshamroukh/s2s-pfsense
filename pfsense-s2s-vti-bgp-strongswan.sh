@@ -244,7 +244,7 @@ sed -i "/\$site1_vnet_name-fw0/ s//$site1_vnet_name-fw0/" $ipsec_vti_file
 # frr.conf
 frr_conf_file=~/frr.conf
 cat <<EOF > $frr_conf_file
-frr version 10.3
+frr version 10.4.0
 frr defaults traditional
 hostname $site2_vnet_name-fw
 log syslog informational
