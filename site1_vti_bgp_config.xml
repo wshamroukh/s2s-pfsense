@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <pfsense>
-	<version>23.3</version>
+	<version>24.0</version>
 	<lastchange></lastchange>
 	<system>
 		<optimization>normal</optimization>
 		<hostname>pfSense</hostname>
-		<domain>home.arpa</domain>
-		<dnsallowoverride>on</dnsallowoverride>
+		<domain>home</domain>
+		<dnsallowoverride></dnsallowoverride>
 		<group>
 			<name>all</name>
 			<description><![CDATA[All Users]]></description>
@@ -37,7 +37,8 @@
 		<webgui>
 			<protocol>https</protocol>
 			<loginautocomplete></loginautocomplete>
-			<ssl-certref>68011f7206a6e</ssl-certref>
+			<ssl-certref>68d434fd7005a</ssl-certref>
+			<dashboardcolumns>2</dashboardcolumns>
 			<max_procs>2</max_procs>
 			<roaming>enabled</roaming>
 			<nohttpreferercheck></nohttpreferercheck>
@@ -54,15 +55,13 @@
 			<interval>monthly</interval>
 		</bogons>
 		<hn_altq_enable></hn_altq_enable>
-		<already_run_config_upgrade></already_run_config_upgrade>
-		<ssh>
-			<enable>enabled</enable>
-		</ssh>
 		<dnsserver>1.1.1.1</dnsserver>
-		<dnsserver>1.0.0.1</dnsserver>
 		<timezone>Etc/UTC</timezone>
 		<serialspeed>115200</serialspeed>
 		<primaryconsole>video</primaryconsole>
+		<ssh>
+			<enable>enabled</enable>
+		</ssh>
 	</system>
 	<interfaces>
 		<wan>
@@ -71,55 +70,22 @@
 			<ipaddr>dhcp</ipaddr>
 			<ipaddrv6>dhcp6</ipaddrv6>
 			<gateway></gateway>
-			<blockpriv>on</blockpriv>
-			<blockbogons>on</blockbogons>
+			<blockbogons></blockbogons>
 			<media></media>
 			<mediaopt></mediaopt>
 			<dhcp6-duid></dhcp6-duid>
 			<dhcp6-ia-pd-len>0</dhcp6-ia-pd-len>
-			<descr><![CDATA[WAN]]></descr>
 		</wan>
 		<lan>
-			<enable></enable>
-			<if>hn1</if>
-			<ipaddr>dhcp</ipaddr>
-			<subnet></subnet>
-			<ipaddrv6>dhcp6</ipaddrv6>
-			<subnetv6></subnetv6>
-			<media></media>
-			<mediaopt></mediaopt>
-			<track6-interface>wan</track6-interface>
-			<track6-prefix-id>0</track6-prefix-id>
-			<gateway></gateway>
-			<gatewayv6></gatewayv6>
-			<descr><![CDATA[LAN]]></descr>
-		</lan>
-		<opt1>
-			<descr><![CDATA[OPT1]]></descr>
+			<descr><![CDATA[VTI]]></descr>
 			<if>ipsec1</if>
 			<enable></enable>
 			<spoofmac></spoofmac>
-		</opt1>
+		</lan>
 	</interfaces>
 	<staticroutes></staticroutes>
-	<dhcpd>
-		<lan>
-			<range>
-				<from>192.168.1.100</from>
-				<to>192.168.1.199</to>
-			</range>
-		</lan>
-	</dhcpd>
-	<dhcpdv6>
-		<lan>
-			<range>
-				<from>::1000</from>
-				<to>::2000</to>
-			</range>
-			<ramode>disabled</ramode>
-			<rapriority>medium</rapriority>
-		</lan>
-	</dhcpdv6>
+	<dhcpd></dhcpd>
+	<dhcpdv6></dhcpdv6>
 	<snmpd>
 		<syslocation></syslocation>
 		<syscontact></syscontact>
@@ -133,15 +99,10 @@
 	<syslog>
 		<filterdescriptions>1</filterdescriptions>
 	</syslog>
-	<nat>
-		<outbound>
-			<mode>automatic</mode>
-		</outbound>
-	</nat>
 	<filter>
 		<rule>
 			<id></id>
-			<tracker>1744905024</tracker>
+			<tracker>1758797977</tracker>
 			<type>pass</type>
 			<interface>wan</interface>
 			<ipprotocol>inet</ipprotocol>
@@ -152,29 +113,29 @@
 			<max-src-conn></max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
-			<protocol>tcp</protocol>
 			<source>
-				<any></any>
+				<address>site1</address>
 			</source>
 			<destination>
-				<network>wanip</network>
-				<port>22</port>
+				<address>vtiaddresses</address>
 			</destination>
-			<descr><![CDATA[Allow SSH on WAN Interface]]></descr>
+			<log></log>
+			<descr><![CDATA[Allow traffic from site1 to vti]]></descr>
 			<updated>
-				<time>1744905024</time>
-				<username><![CDATA[admin@192.168.1.136 (Local Database)]]></username>
+				<time>1758797977</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</updated>
 			<created>
-				<time>1744905024</time>
-				<username><![CDATA[admin@192.168.1.136 (Local Database)]]></username>
+				<time>1758797977</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</created>
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1744904996</tracker>
+			<tracker>1758797944</tracker>
 			<type>pass</type>
 			<interface>wan</interface>
 			<ipprotocol>inet</ipprotocol>
@@ -185,6 +146,238 @@
 			<max-src-conn></max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>s1spoke</address>
+			</source>
+			<destination>
+				<address>vtiaddresses</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from s1spoke to vti]]></descr>
+			<updated>
+				<time>1758797944</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758797944</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758797511</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>s1spoke</address>
+			</source>
+			<destination>
+				<address>s2spoke</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from s1spoke to s2spoke]]></descr>
+			<updated>
+				<time>1758797511</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758797511</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758797395</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>s1spoke</address>
+			</source>
+			<destination>
+				<address>site2</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from s1spoke to site2]]></descr>
+			<updated>
+				<time>1758797395</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758797395</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758797249</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>site1</address>
+			</source>
+			<destination>
+				<address>s2spoke</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from site1 to s2spoke]]></descr>
+			<updated>
+				<time>1758797249</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758797249</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758797223</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>site1</address>
+			</source>
+			<destination>
+				<address>site2</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from site1 to site2]]></descr>
+			<updated>
+				<time>1758797223</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758797223</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758796650</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>s1spoke</address>
+			</source>
+			<destination>
+				<address>site1</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from s1spoke to site1]]></descr>
+			<updated>
+				<time>1758796650</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758796650</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758796539</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>site1</address>
+			</source>
+			<destination>
+				<address>s1spoke</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from site1 to s1spoke]]></descr>
+			<updated>
+				<time>1758796539</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758796539</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758794044</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
 			<protocol>tcp</protocol>
@@ -195,14 +388,50 @@
 				<network>wanip</network>
 				<port>443</port>
 			</destination>
-			<descr><![CDATA[Allow HTTPS on WAN Interface]]></descr>
+			<log></log>
+			<descr><![CDATA[Allow HTTPS]]></descr>
 			<updated>
-				<time>1744904996</time>
-				<username><![CDATA[admin@192.168.1.136 (Local Database)]]></username>
+				<time>1758794044</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</updated>
 			<created>
-				<time>1744904996</time>
-				<username><![CDATA[admin@192.168.1.136 (Local Database)]]></username>
+				<time>1758794044</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758794009</tracker>
+			<type>pass</type>
+			<interface>wan</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<protocol>tcp</protocol>
+			<source>
+				<any></any>
+			</source>
+			<destination>
+				<network>wanip</network>
+				<port>22</port>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow SSH]]></descr>
+			<updated>
+				<time>1758794009</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758794009</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</created>
 		</rule>
 		<rule>
@@ -233,7 +462,7 @@
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1747556436</tracker>
+			<tracker>1758798059</tracker>
 			<type>pass</type>
 			<interface>enc0</interface>
 			<ipprotocol>inet</ipprotocol>
@@ -244,30 +473,31 @@
 			<max-src-conn></max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
 			<source>
-				<address>10.2.0.0/16</address>
+				<address>s2spoke</address>
 			</source>
 			<destination>
-				<address>10.1.0.0/16</address>
+				<address>vtiaddresses</address>
 			</destination>
 			<log></log>
-			<descr><![CDATA[Allow IPSec traffic from site2]]></descr>
-			<created>
-				<time>1747556436</time>
-				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
-			</created>
+			<descr><![CDATA[Allow traffic from s2spoke to vti]]></descr>
 			<updated>
-				<time>1747557380</time>
+				<time>1758798059</time>
 				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</updated>
+			<created>
+				<time>1758798059</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1748195760</tracker>
+			<tracker>1758798028</tracker>
 			<type>pass</type>
-			<interface>opt1</interface>
+			<interface>enc0</interface>
 			<ipprotocol>inet</ipprotocol>
 			<tag></tag>
 			<tagged></tagged>
@@ -276,30 +506,31 @@
 			<max-src-conn></max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
 			<source>
-				<address>10.2.0.0/16</address>
+				<address>site2</address>
 			</source>
 			<destination>
-				<address>10.1.0.0/16</address>
+				<address>vtiaddresses</address>
 			</destination>
 			<log></log>
-			<descr><![CDATA[Allow site2 to site1 traffic via IPSec]]></descr>
+			<descr><![CDATA[Allow traffic from site2 to vti]]></descr>
 			<updated>
-				<time>1748195760</time>
+				<time>1758798028</time>
 				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</updated>
 			<created>
-				<time>1748195760</time>
+				<time>1758798028</time>
 				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</created>
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1748195324</tracker>
+			<tracker>1758797057</tracker>
 			<type>pass</type>
-			<interface>opt1</interface>
+			<interface>enc0</interface>
 			<ipprotocol>inet</ipprotocol>
 			<tag></tag>
 			<tagged></tagged>
@@ -308,30 +539,31 @@
 			<max-src-conn></max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
 			<source>
-				<address>10.116.0.2</address>
+				<address>s2spoke</address>
 			</source>
 			<destination>
-				<address>10.1.0.0/16</address>
+				<address>s1spoke</address>
 			</destination>
 			<log></log>
-			<descr><![CDATA[Allow traffic from site2 via IPSec]]></descr>
+			<descr><![CDATA[Allow traffic from s2spoke to s1spoke]]></descr>
 			<updated>
-				<time>1748195324</time>
+				<time>1758797057</time>
 				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</updated>
 			<created>
-				<time>1748195324</time>
+				<time>1758797057</time>
 				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</created>
 		</rule>
 		<rule>
 			<id></id>
-			<tracker>1748194954</tracker>
+			<tracker>1758797024</tracker>
 			<type>pass</type>
-			<interface>opt1</interface>
+			<interface>enc0</interface>
 			<ipprotocol>inet</ipprotocol>
 			<tag></tag>
 			<tagged></tagged>
@@ -340,49 +572,212 @@
 			<max-src-conn></max-src-conn>
 			<max-src-states></max-src-states>
 			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
 			<statetype><![CDATA[keep state]]></statetype>
 			<os></os>
 			<source>
-				<address>10.116.0.2</address>
+				<address>s2spoke</address>
 			</source>
 			<destination>
-				<address>10.116.0.1</address>
+				<address>site1</address>
 			</destination>
 			<log></log>
-			<descr><![CDATA[Allow traffic between IPSect VTI interfaces]]></descr>
+			<descr><![CDATA[Allow traffic from s2spoke to site1]]></descr>
 			<updated>
-				<time>1748194954</time>
+				<time>1758797024</time>
 				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</updated>
 			<created>
-				<time>1748194954</time>
+				<time>1758797024</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758796916</tracker>
+			<type>pass</type>
+			<interface>enc0</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>site2</address>
+			</source>
+			<destination>
+				<address>s1spoke</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from site2 to s1spoke1]]></descr>
+			<updated>
+				<time>1758796916</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758796916</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758796818</tracker>
+			<type>pass</type>
+			<interface>enc0</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>site2</address>
+			</source>
+			<destination>
+				<address>site1</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from site2 to site1]]></descr>
+			<updated>
+				<time>1758796818</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758796818</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758796362</tracker>
+			<type>pass</type>
+			<interface>enc0</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>vtiaddresses</address>
+			</source>
+			<destination>
+				<address>s1spoke</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from VTI to s1spoke]]></descr>
+			<updated>
+				<time>1758796362</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758796362</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758796079</tracker>
+			<type>pass</type>
+			<interface>enc0</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>vtiaddresses</address>
+			</source>
+			<destination>
+				<address>site1</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow traffic from VTI to site1]]></descr>
+			<updated>
+				<time>1758796079</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758796079</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</created>
+		</rule>
+		<rule>
+			<id></id>
+			<tracker>1758794230</tracker>
+			<type>pass</type>
+			<interface>enc0</interface>
+			<ipprotocol>inet</ipprotocol>
+			<tag></tag>
+			<tagged></tagged>
+			<max></max>
+			<max-src-nodes></max-src-nodes>
+			<max-src-conn></max-src-conn>
+			<max-src-states></max-src-states>
+			<statetimeout></statetimeout>
+			<statepolicy></statepolicy>
+			<statetype><![CDATA[keep state]]></statetype>
+			<os></os>
+			<source>
+				<address>vtiaddresses</address>
+			</source>
+			<destination>
+				<address>vtiaddresses</address>
+			</destination>
+			<log></log>
+			<descr><![CDATA[Allow vti traffic]]></descr>
+			<updated>
+				<time>1758794230</time>
+				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
+			</updated>
+			<created>
+				<time>1758794230</time>
 				<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 			</created>
 		</rule>
 		<separator>
 			<wan></wan>
 			<enc0></enc0>
-			<opt1></opt1>
 		</separator>
 	</filter>
-	<shaper></shaper>
 	<ipsec>
-		<client></client>
 		<phase1>
 			<ikeid>1</ikeid>
 			<iketype>ikev2</iketype>
 			<interface>wan</interface>
-			<remote-gateway>52.140.75.226</remote-gateway>
+			<remote-gateway>98.70.103.212</remote-gateway>
 			<protocol>inet</protocol>
 			<myid_type>address</myid_type>
-			<myid_data>52.172.203.192</myid_data>
+			<myid_data>98.70.101.71</myid_data>
 			<peerid_type>address</peerid_type>
-			<peerid_data>52.140.75.226</peerid_data>
+			<peerid_data>98.70.103.212</peerid_data>
 			<encryption>
 				<item>
 					<encryption-algorithm>
 						<name>aes</name>
-						<keylen>256</keylen>
+						<keylen>128</keylen>
 					</encryption-algorithm>
 					<hash-algorithm>sha256</hash-algorithm>
 					<prf-algorithm>sha256</prf-algorithm>
@@ -400,26 +795,26 @@
 			<pkcs11pin></pkcs11pin>
 			<caref></caref>
 			<authentication_method>pre_shared_key</authentication_method>
-			<descr><![CDATA[site1]]></descr>
+			<descr><![CDATA[site2]]></descr>
 			<nat_traversal>on</nat_traversal>
 			<mobike>off</mobike>
 			<startaction></startaction>
-			<closeaction>start</closeaction>
+			<closeaction></closeaction>
 			<dpd_delay>10</dpd_delay>
 			<dpd_maxfail>5</dpd_maxfail>
 		</phase1>
 		<phase2>
 			<ikeid>1</ikeid>
-			<uniqid>6829978848a8b</uniqid>
+			<uniqid>68d50ffe1c5dd</uniqid>
 			<mode>vti</mode>
 			<reqid>1</reqid>
 			<localid>
 				<type>address</type>
-				<address>10.116.0.1</address>
+				<address>192.168.1.1</address>
 			</localid>
 			<remoteid>
 				<type>address</type>
-				<address>10.116.0.2</address>
+				<address>192.168.1.2</address>
 			</remoteid>
 			<protocol>esp</protocol>
 			<encryption-algorithm-option>
@@ -435,30 +830,44 @@
 			<keepalive>disabled</keepalive>
 			<descr><![CDATA[site2]]></descr>
 		</phase2>
-		<logging>
-			<dmn>1</dmn>
-			<mgr>1</mgr>
-			<ike>2</ike>
-			<chd>2</chd>
-			<job>1</job>
-			<cfg>2</cfg>
-			<knl>1</knl>
-			<net>1</net>
-			<asn>1</asn>
-			<enc>1</enc>
-			<imc>1</imc>
-			<imv>1</imv>
-			<pts>1</pts>
-			<tls>1</tls>
-			<esp>1</esp>
-			<lib>1</lib>
-		</logging>
-		<async_crypto>disabled</async_crypto>
-		<uniqueids>replace</uniqueids>
-		<filtermode>if_ipsec</filtermode>
-		<bypassrules></bypassrules>
 	</ipsec>
-	<aliases></aliases>
+	<aliases>
+		<alias>
+			<name>vtiaddresses</name>
+			<type>network</type>
+			<address>192.168.1.1/30</address>
+			<descr><![CDATA[vtiaddresses]]></descr>
+			<detail><![CDATA[Entry added Thu, 25 Sep 2025 09:56:31 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>site1</name>
+			<type>network</type>
+			<address>10.1.0.0/16</address>
+			<descr><![CDATA[site1]]></descr>
+			<detail><![CDATA[Entry added Thu, 25 Sep 2025 10:24:17 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>site2</name>
+			<type>network</type>
+			<address>10.2.0.0/16</address>
+			<descr><![CDATA[site2]]></descr>
+			<detail><![CDATA[Entry added Thu, 25 Sep 2025 10:24:38 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>s1spoke</name>
+			<type>network</type>
+			<address>10.11.0.0/16</address>
+			<descr><![CDATA[s1spoke]]></descr>
+			<detail><![CDATA[Entry added Thu, 25 Sep 2025 10:25:08 +0000]]></detail>
+		</alias>
+		<alias>
+			<name>s2spoke</name>
+			<type>network</type>
+			<address>10.12.0.0/16</address>
+			<descr><![CDATA[s2spoke]]></descr>
+			<detail><![CDATA[Entry added Thu, 25 Sep 2025 10:25:25 +0000]]></detail>
+		</alias>
+	</aliases>
 	<proxyarp></proxyarp>
 	<cron>
 		<item>
@@ -571,45 +980,60 @@
 		<hideidentity></hideidentity>
 		<hideversion></hideversion>
 		<dnssecstripped></dnssecstripped>
+		<qname-minimisation></qname-minimisation>
 	</unbound>
 	<vlans></vlans>
 	<qinqs></qinqs>
 	<revision>
-		<time>1748197102</time>
+		<time>1758798059</time>
+		<description><![CDATA[admin@45.155.47.233 (Local Database): Firewall: Rules - saved/edited a firewall rule.]]></description>
 		<username><![CDATA[admin@45.155.47.233 (Local Database)]]></username>
 	</revision>
 	<gateways>
+		<gateway_item>
+			<interface>wan</interface>
+			<gateway></gateway>
+			<name>WAN_DHCP6</name>
+			<weight>1</weight>
+			<ipprotocol>inet6</ipprotocol>
+			<descr><![CDATA[Interface WAN_DHCP6 Gateway]]></descr>
+			<gw_down_kill_states></gw_down_kill_states>
+		</gateway_item>
+		<gateway_item>
+			<interface>wan</interface>
+			<gateway>dynamic</gateway>
+			<name>WAN_DHCP</name>
+			<weight>1</weight>
+			<ipprotocol>inet</ipprotocol>
+			<descr><![CDATA[Interface WAN_DHCP Gateway]]></descr>
+			<gw_down_kill_states></gw_down_kill_states>
+		</gateway_item>
+		<gateway_item>
+			<interface>lan</interface>
+			<gateway>dynamic</gateway>
+			<name>VTI_VTIV4</name>
+			<weight>1</weight>
+			<ipprotocol>inet</ipprotocol>
+			<descr><![CDATA[Interface VTI_VTIV4 Gateway]]></descr>
+			<gw_down_kill_states></gw_down_kill_states>
+		</gateway_item>
 		<defaultgw4>WAN_DHCP</defaultgw4>
 		<defaultgw6>WAN_DHCP6</defaultgw6>
 	</gateways>
-	<captiveportal></captiveportal>
-	<dnsmasq></dnsmasq>
-	<ntpd>
-		<gps></gps>
-	</ntpd>
 	<cert>
-		<refid>68011f7206a6e</refid>
-		<descr><![CDATA[GUI default (68011f7206a6e)]]></descr>
+		<refid>68d434fd7005a</refid>
+		<descr><![CDATA[GUI default (68d434fd7005a)]]></descr>
 		<type>server</type>
-		<crt>LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUViekNDQTFlZ0F3SUJBZ0lJT0tZWFdHcXNBWUF3RFFZSktvWklodmNOQVFFTEJRQXdWakUwTURJR0ExVUUKQ2hNcmNHWlRaVzV6WlNCSFZVa2daR1ZtWVhWc2RDQlRaV3htTFZOcFoyNWxaQ0JEWlhKMGFXWnBZMkYwWlRFZQpNQndHQTFVRUF4TVZjR1pUWlc1elpTMDJPREF4TVdZM01qQTJZVFpsTUI0WERUSTFNRFF4TnpFMU16UXhNRm9YCkRUSTJNRFV5TURFMU16UXhNRm93VmpFME1ESUdBMVVFQ2hNcmNHWlRaVzV6WlNCSFZVa2daR1ZtWVhWc2RDQlQKWld4bUxWTnBaMjVsWkNCRFpYSjBhV1pwWTJGMFpURWVNQndHQTFVRUF4TVZjR1pUWlc1elpTMDJPREF4TVdZMwpNakEyWVRabE1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBb1ZrdXlCbURxdytLCmhyZDJUSGp2OE1yMHdRdzlMczhGMkFscDFzSnRSNUhIb0E4YStTNzExN0FQWXpJYUpzWURjU2c0VjVUVStkc2EKUHVVeHlUTEdsZTlvZEVZQUpiSnJWQlZCVW51WGVYWkxESVRBeDhpVU5taEplU3g1V2FNVFlJbHpOS0RXM3I5cwpkTGNjUkhYQVdmM1F6V2U0aEdYL0U0QkRjdUZTdmdlaHk5a0pTR0tuVVZiSldzUEs4NWFIV2JESW84OHJ1d01oCjRKWUhmRVhKQlYzVjJKN050WHBNbDE2RjI1ZEs1eGptS1VROGlYSkpGZTJPMTB1bW1ZK09pU3BDZWhsRE12OE0KQ0R5dE1hQ0pVck10NEw2VVpsY1p6eWVqanpBcFZqdk80VlpCejR2RDlNc3pud0FvZ2RwSUJCN1hPSmdiM0lMVgpGSVRPV0htSXJ3SURBUUFCbzRJQlB6Q0NBVHN3Q1FZRFZSMFRCQUl3QURBUkJnbGdoa2dCaHZoQ0FRRUVCQU1DCkJrQXdDd1lEVlIwUEJBUURBZ1dnTURNR0NXQ0dTQUdHK0VJQkRRUW1GaVJQY0dWdVUxTk1JRWRsYm1WeVlYUmwKWkNCVFpYSjJaWElnUTJWeWRHbG1hV05oZEdVd0hRWURWUjBPQkJZRUZHMUxzbEVncGdvRVNDUC9OdFVhOE5DcgpodVN1TUc4R0ExVWRJd1JvTUdhaFdxUllNRll4TkRBeUJnTlZCQW9USzNCbVUyVnVjMlVnUjFWSklHUmxabUYxCmJIUWdVMlZzWmkxVGFXZHVaV1FnUTJWeWRHbG1hV05oZEdVeEhqQWNCZ05WQkFNVEZYQm1VMlZ1YzJVdE5qZ3cKTVRGbU56SXdObUUyWllJSU9LWVhXR3FzQVlBd0p3WURWUjBsQkNBd0hnWUlLd1lCQlFVSEF3RUdDQ3NHQVFVRgpCd01DQmdnckJnRUZCUWdDQWpBZ0JnTlZIUkVFR1RBWGdoVndabE5sYm5ObExUWTRNREV4WmpjeU1EWmhObVV3CkRRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFDc3BDSTVCL3BvYktJQThyK3g1Y1ZlQ3RXUkNkT1RGM3ZqREVSc3cKNnBuTDE4NGhtTGVkbC9YQmZDaXVZdHZmYThNSy94eWNkRVVKTDVoVlJneEZVRUdsZEliamYvNTdXWWpoaVZKdgpsNmFObFRsODdBMTVNM1ZkamZTU1J6RDFkWmswYlByQXppRUdkQ2pQdGJNcG1XWkxuQUFZL0hEbGJRaGEvUGNUCjNXYnNBUHRJSDVCaHVUV1JhUUlIYjdOYXlDVmlPZWt0T2JjbXFzZkRIejNjbWtkU1NyK09HbnlRM2M2U0J6YWYKUlAzODRuQ3JlZHViRmdnN3ZyTTFwc3hBTkMzeWl0YmMxcEZSc3RIRGxkOS9Ub2VQUnZQUCtkNG8wMndLQnJYYgo3MXpyTnFMa2NnNWRaM0ZqZzh4bU5YcHU5MmRLUWtwYVh5dFpJOXRmVEdLZldocz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=</crt>
-		<prv>LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2QUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktZd2dnU2lBZ0VBQW9JQkFRQ2hXUzdJR1lPckQ0cUcKdDNaTWVPL3d5dlRCREQwdXp3WFlDV25Xd20xSGtjZWdEeHI1THZYWHNBOWpNaG9teGdOeEtEaFhsTlQ1MnhvKwo1VEhKTXNhVjcyaDBSZ0Fsc210VUZVRlNlNWQ1ZGtzTWhNREh5SlEyYUVsNUxIbFpveE5naVhNMG9OYmV2MngwCnR4eEVkY0JaL2RETlo3aUVaZjhUZ0VOeTRWSytCNkhMMlFsSVlxZFJWc2xhdzhyemxvZFpzTWlqenl1N0F5SGcKbGdkOFJja0ZYZFhZbnMyMWVreVhYb1hibDBybkdPWXBSRHlKY2trVjdZN1hTNmFaajQ2SktrSjZHVU15L3d3SQpQSzB4b0lsU3N5M2d2cFJtVnhuUEo2T1BNQ2xXTzg3aFZrSFBpOFAweXpPZkFDaUIya2dFSHRjNG1CdmNndFVVCmhNNVllWWl2QWdNQkFBRUNnZ0VBRlNxamNmbXk1YjZBc0VLaUlNOGV2d3FKQ0VoSVFIdEZLMzIwcGtsVVY3YSsKcHZkRVZSczlnaUdsS3lDNEFJMHFoMjQ4MGZTQzZoSTl3N0dDa2YvNHdGT3JjdEY2RkhmdkQ1VklQLzladEVQNQovWGJ1NldhZFZ2UGdhNmFUZHRobll0czFRMXEwUlgxOFIyVjhMbGo2Tm5RUEw5c2pBQzkzUW9JcGx3a0xOMFdJCm45bkxuWmF4T1lCOGh5MnpsSE82SmJYNHFDTWhiNkc1dWV2Mk5RUmVmOVlSZnB6dllxOThkT0pDSGtBNFpOTWcKb2RDK1R5dWk4aDFncngrSmdlSkJPa2JuS0hxdG9nZXlybmszY1lwT202eFVkRG1RUUttdXRDL2R3ZkZtTGFGZApPS3hxYVk2c05aSHdoMjZMcTcxdFUyMVBuRkVNd2xaS214WUEwL2VRS1FLQmdRRFhubFhSSDkvVldQcE1UMlFhCnpucEFLZkw0MmhWQW9JRUZONFJ3Qk1OVG1Ib1JERE5xZUpuZTJZaHNCQTd5SGtYS05UZFliWi9iMDliKzZIelgKM1hQeHUvSzVKYXFyOFV1V2lhclZzUk9meTYrbitoMFJnVnIrUzBmeWFNUEN3Tzl0NUROTytSck9paFlMbjVsagppTG11elNrZTRwdjJDWWh6WDhmVHkyZ1phUUtCZ1FDL2tPaFhDaDJIQ0dlQk5VcXNYNnZBVVVmYmk5dWJtOEx3ClVjWkU2Y202TCtnQWdsTGh5Rm9MZjhxYmVNNEV3VWFZMmRKQ0dYaWwvVEVHTitiTm50d2tOUjNpNG9zVlRydXIKdmNtUiszR2VOWmZHUXFOMldoeHJJK3NSYjlFZFlMWm1yTWdaWWpVczJrb0UxZjdjMkZkSHhEcDhvWWw2VFdMVwpnYU9nZm43MlZ3S0JnQk1EV0VmbmlxSlNoVWZEWEcxc3RhVUF6ZmNacS9RVjh5cVZtYTBURG5KSnFNSG1GSWFYCitlR0h4eHJYUk1ZZTIwS1liTGYwZXJzMHMrbW9jSkhNYWxQdm9kaW50S1FTMC9xRFN6Z3F0RE5NRDhJOU1PRUIKU2hmUVpaaS9tanVMTGRHLzVMSmJEdjBWZWhvdVNhVllRaDlpNGZSaVFTUng5TUZQdWR3NFBJYTVBb0dBRG4rSgpGZzFON3NwVUN4TmRjMjVLTVdQMWJFaEpkcDF6UTN6czVJcE5HaXBHQk1QWVFmNUgwbGI1bm9xbURQWVR3YjI2CmpBWWhlMjZPSjBwVHpYd1liU1VYL2ZQblV0V0NucHplaEkzakszWWk1bjVrb0xCeE5pcWh2OUFXbzRLT1MzY0kKTGVPZzRxUWl0ZnI4THZxd29GM1pqMVVxY25jbzQ5TXI3eG1qd2tFQ2dZQnRvaHduNmlVS0JHaVpqc3hkSWxzaApySXlCQjJmTmtVZkI1c1A3RGh5d1lVc0pzSWU5bjhXZHJ0ZHZpYXVIc1BSMm9jMlR3ZHpMRWNSVmc5S1dzMDNkCjRIRG1FaFZnUWIzT1hUYkh6aEF5QWY0QkxEWkxjZ1hrekZ3bmpPZmF4eTZ6U1NyMWZhSjhoajBhWDc3WlEzdlgKUlFPcGhBOHpiUTl5OG5GZ2tWdUpEUT09Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K</prv>
+		<crt>LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUViekNDQTFlZ0F3SUJBZ0lJSkZySHlqRVBGZU13RFFZSktvWklodmNOQVFFTEJRQXdWakUwTURJR0ExVUUKQ2hNcmNHWlRaVzV6WlNCSFZVa2daR1ZtWVhWc2RDQlRaV3htTFZOcFoyNWxaQ0JEWlhKMGFXWnBZMkYwWlRFZQpNQndHQTFVRUF4TVZjR1pUWlc1elpTMDJPR1EwTXpSbVpEY3dNRFZoTUI0WERUSTFNRGt5TkRFNE1UUXlNVm9YCkRUSTJNVEF5TnpFNE1UUXlNVm93VmpFME1ESUdBMVVFQ2hNcmNHWlRaVzV6WlNCSFZVa2daR1ZtWVhWc2RDQlQKWld4bUxWTnBaMjVsWkNCRFpYSjBhV1pwWTJGMFpURWVNQndHQTFVRUF4TVZjR1pUWlc1elpTMDJPR1EwTXpSbQpaRGN3TURWaE1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBMnBDemE1OVgyNHc1ClI3OGRGNklSWXZsQXNsU0JEbDZLL2crUXdTcXlEQzVDdisvR2VzU1R2OGdpS1Vqd2RIMUpzRFZEbFNSMkFtUzEKNHEwRnRqb0dSSUxuOFhBUDdwdXlKbFphUGVJL3duWkxNbm1PU1plc2s1V3FMMm5JNndHMWpvL284c2JPWWRIegppTFliMytEcjBTOWpDS1ZGblFRSHg5SXlTYmhTK2V5cndsaDVpU3RUYjNHNlRkRDgvd3ZnVTRrSXFGWDBXcVMyCjE1SDZzQTB5VGtFa1VpVW9OV1JNOUc1NkF0NlZ3dStuWTdPeGVjYUJjYkVMQkIvUTlEUHRKc3hlU2gyNXBwR1kKQ1BZbWxrZU9pd0Z3d2VPRDA5Q2NENm1vOVZRQmt6ak92U0l0MWFSSDNpYVRHdjB4WDlIck1Mb2ptYVFvcnhONAp6d1JhZURJc013SURBUUFCbzRJQlB6Q0NBVHN3Q1FZRFZSMFRCQUl3QURBUkJnbGdoa2dCaHZoQ0FRRUVCQU1DCkJrQXdDd1lEVlIwUEJBUURBZ1dnTURNR0NXQ0dTQUdHK0VJQkRRUW1GaVJQY0dWdVUxTk1JRWRsYm1WeVlYUmwKWkNCVFpYSjJaWElnUTJWeWRHbG1hV05oZEdVd0hRWURWUjBPQkJZRUZGS0EwUVRzZW4wSGpqMkxSMHphd1VkdAp5ODZxTUc4R0ExVWRJd1JvTUdhaFdxUllNRll4TkRBeUJnTlZCQW9USzNCbVUyVnVjMlVnUjFWSklHUmxabUYxCmJIUWdVMlZzWmkxVGFXZHVaV1FnUTJWeWRHbG1hV05oZEdVeEhqQWNCZ05WQkFNVEZYQm1VMlZ1YzJVdE5qaGsKTkRNMFptUTNNREExWVlJSUpGckh5akVQRmVNd0p3WURWUjBsQkNBd0hnWUlLd1lCQlFVSEF3RUdDQ3NHQVFVRgpCd01DQmdnckJnRUZCUWdDQWpBZ0JnTlZIUkVFR1RBWGdoVndabE5sYm5ObExUWTRaRFF6Tkdaa056QXdOV0V3CkRRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFKa1lQOEhqK2ZqazZYQitrMXdPTm9PWmFxVm1kUUorMkVSZmJGTW8KN0pMb0h2SjNZcUVDV2ZRTm1Sc3gyeXFMdVIzTitXQXg2MzBpYitTYXIrNFpZU0NDMDAxMnlyOHpoaWtndWdMbAptekRsMVJ0UVp4YXNkQlp3UVJLQy8xVHRnMU0rdTNpaXZZbFpleldEb0Fsc2pGc0dFMXlEZ05GMGh6UmlDcmNGCk5zNm1sa2xqbTNGQ3dVVnNlZkdiK04yQ0xKNjV1NEdhVWlYbkxuand1TkYyMitpK3ZXZzcyUlRBMm5EL25uQUsKdGE5emVlVWxkQ1Y5WmdQQ1VMcWd0cXFZd01yc1A0R0E5TC9qcVRMSTRIVjN5a043YkR2SmwrMDhnVFFzWlpUdApQeGhtVXAyZE1BS1NzUjJpcUtKNDRVL2tkZGdJekVrSVYzbWtVZTJ0TG4vVENqaz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=</crt>
+		<prv>LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRRGFrTE5ybjFmYmpEbEgKdngwWG9oRmkrVUN5VklFT1hvcitENURCS3JJTUxrSy83OFo2eEpPL3lDSXBTUEIwZlVtd05VT1ZKSFlDWkxYaQpyUVcyT2daRWd1ZnhjQS91bTdJbVZsbzk0ai9DZGtzeWVZNUpsNnlUbGFvdmFjanJBYldPaitqeXhzNWgwZk9JCnRodmY0T3ZSTDJNSXBVV2RCQWZIMGpKSnVGTDU3S3ZDV0htSksxTnZjYnBOMFB6L0MrQlRpUWlvVmZSYXBMYlgKa2Zxd0RUSk9RU1JTSlNnMVpFejBibm9DM3BYQzc2ZGpzN0Y1eG9GeHNRc0VIOUQwTSswbXpGNUtIYm1ta1pnSQo5aWFXUjQ2TEFYREI0NFBUMEp3UHFhajFWQUdUT002OUlpM1ZwRWZlSnBNYS9URmYwZXN3dWlPWnBDaXZFM2pQCkJGcDRNaXd6QWdNQkFBRUNnZ0VBUlFHRm5GZVpRaGh5SjB4WUw1TjhRTTdvVmNWblg3V0sxYTd0YVllRTRtS2kKc1gzUElRaTZpMFR4UUM2bXVHaXNJTVdZV2xqQ0ozeExqczlJNitGREJGTitUcFN1ZXd2T1FkdG1yMzRrMmsxRgo3YUJDUThydThrUEJFU29waE1VcjRPQmYwSExqU3pBaDMwcDczNEhnZ2xHZlIyWUM1aEdWTVVvVWxZRHNOYnFsCmpaNHJ6ZW5JMnJDSTVMM0N5aFA2NExKc0xRNktoUy9DVGdGV1gwQW1SL1Q5Z3dKYW5jaWVabDEvV0RYS291R2kKOXR5WC9IYTEwYlo5RG1zUWJUdDlmclhUSWd1cmNSa3dkdVFsRGhRbWZnQ3kvWnR2MnVVSHd4L054eWRIT3E2cApyZnlnaFlmaE5aRFN1d1ZzTTNTckF1K0VPL2FYSDRZbFNxR05wOG43MFFLQmdRRHpLK3BkV0JaYXlwL1BTTnBNCjBnMkVFbjVQYUhvRS9jYXdnZEU2NXZ1VW1XUzNpWUJMeWdKQWJkVmpRS000eGlrVFY4QllKSVc1VlFHak52dFQKcGFZekFnZUFoaDNGa0dKSkwwRUh4dlJoam5EOHVZb25yTG1WWis2SElzSTVyV0RSZUJ4QTNwbkhxRVlmeVJyVwp5Q0tBcVJ6Wkd1OUxmSzdiQ2tUZ2ZkdjBzUUtCZ1FEbUdIakxaTkpNMlh2WDZjclVDRkFTeEZ0bCtPT3FyTzVECmJwVU5UWE9QZHZqR3V0bkJ4aStpMFZDdkc1aEdQcjlMQUVVK0hRZjlXY2dZM0luTktPVEJ1MFJkTWV4ZjQ0WnIKaS92YVllb3I5c2NqZXJzeG9BK1Rjd01ZcmhPdHFDVU5MYTl4a3lZYlFvb1I4S0ZnM0UyZ1hjQ3NhTFg1K3J1MAo2ZDlzbVdrNEl3S0JnUUNJVEs4Nnp1c0l6Tll5bTRVdzFmUVplVHd2U2tKS2xleE9keFZOekxackhtZWpzSUNtCituMjBtMXVtSEU3Z3ZjRzhRODFlR21xUjdTSFQyRGViTlJncE14UDlhQzg3MDZnam1VYjhFdnBiekRsc2pwcnYKamhNZnVYZXJhMEl1amczY20xUkt6L3FtUEozQnB6bFI5aS9RcWZtdmZ6ZHR1bDlRQ3p0OEVVKytvUUtCZ0JwdwoxM2l2OWtha2UwbTljUFJhbkRENzVYRGJYL1lkOXlkQ2p0Zy9mVGNRT2RoRVluK1U4YVpwSFRkeUdWYUJJV1JSCi9LTDluUXh0QThSdm0xbzdCOGFIYVh5NEh1eUo3Y2x3QlpuN3hIZ1czSjFrSGh5K3d1dHp2UGhhRUtMVS9xVDgKQ2Z3b0o2bmNSSmQ1S21KQ0RwMk9DSFVIZDFucGlTWnA5YVc2SDFBM0FvR0JBSWxUN1R6MTR4cXlFYUxPK1l0SgpWdjNYQnZZczJ6Ym9HdnpuTkRHby85ejFLekNxeXovK2tNU0pleFM0N1ZKejJOUHhYd0ZnZzhRV2FUOTZEV1h4Cm92UXM4UmhTMWs0T2Zwd2M5L04rZWtnUmdVTGkxSXovOS9lZWVoY1J2SEZ2OG1MZHA2cGttUS91aTF0NjJNZ3gKekZzUWNFM3pGVkZyUFExL0JVSmVMNkUyCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0K</prv>
 	</cert>
-	<wizardtemp>
-		<system>
-			<hostname>pfSense</hostname>
-			<domain>home.arpa</domain>
-		</system>
-	</wizardtemp>
-	<ppps></ppps>
-	<dhcrelay></dhcrelay>
-	<dhcrelay6></dhcrelay6>
 	<installedpackages>
 		<package>
 			<name>FRR</name>
 			<internal_name>frr</internal_name>
 			<descr><![CDATA[FRR routing daemon for BGP, OSPF, OSPF6 and RIP.&lt;br /&gt;
 			&lt;strong&gt;Conflicts with Quagga OSPF and OpenBGPD; these packages cannot be installed at the same time.&lt;/strong&gt;]]></descr>
-			<version>2.0.2_1</version>
+			<version>2.0.2_6</version>
 			<configurationfile>frr.xml</configurationfile>
 			<tabs>
 				<tab>
@@ -764,31 +1188,12 @@
 			<executable>watchfrr</executable>
 			<description><![CDATA[FRR watchfrr watchdog daemon]]></description>
 		</service>
-		<frr>
-			<config>
-				<enable>on</enable>
-				<routerid>10.1.0.250</routerid>
-				<password><![CDATA[pfsense]]></password>
-				<passwordencrypt></passwordencrypt>
-				<ignoreipsecrestart></ignoreipsecrestart>
-				<carpstatusvid>none</carpstatusvid>
-				<logging></logging>
-				<pkgloglevel>0</pkgloglevel>
-				<enablesnmpagentx></enablesnmpagentx>
-				<row>
-					<routevalue>10.1.0.0/16</routevalue>
-					<routetarget>gw|WAN_DHCP</routetarget>
-				</row>
-				<nht>none</nht>
-				<service_force_restart></service_force_restart>
-			</config>
-		</frr>
 		<frrbgp>
 			<config>
 				<enable>on</enable>
 				<adjacencylog></adjacencylog>
 				<asnum>65551</asnum>
-				<routerid></routerid>
+				<routerid>10.1.0.250</routerid>
 				<timers_keepalive></timers_keepalive>
 				<timers_holdtime></timers_holdtime>
 				<timers_updatedelay></timers_updatedelay>
@@ -818,11 +1223,38 @@
 					<distributeroutevalue>10.1.0.0/16</distributeroutevalue>
 					<distributeroutemap>none</distributeroutemap>
 				</row>
+				<row>
+					<distributeroutevalue>10.11.0.0/16</distributeroutevalue>
+					<distributeroutemap>none</distributeroutemap>
+				</row>
 			</config>
 		</frrbgp>
+		<frr>
+			<config>
+				<enable>on</enable>
+				<routerid>10.1.0.250</routerid>
+				<password><![CDATA[pfsense]]></password>
+				<passwordencrypt></passwordencrypt>
+				<ignoreipsecrestart></ignoreipsecrestart>
+				<carpstatusvid>none</carpstatusvid>
+				<logging></logging>
+				<pkgloglevel>0</pkgloglevel>
+				<enablesnmpagentx></enablesnmpagentx>
+				<row>
+					<routevalue>10.1.0.0/16</routevalue>
+					<routetarget>gw|WAN_DHCP</routetarget>
+				</row>
+				<row>
+					<routevalue>10.11.0.0/16</routevalue>
+					<routetarget>gw|WAN_DHCP</routetarget>
+				</row>
+				<nht>none</nht>
+				<service_force_restart>Force Service Restart</service_force_restart>
+			</config>
+		</frr>
 		<frrbgpneighbors>
 			<config>
-				<peer>10.116.0.2</peer>
+				<peer>192.168.1.2</peer>
 				<descr><![CDATA[site2]]></descr>
 				<peergroup>none</peergroup>
 				<password></password>
@@ -830,15 +1262,16 @@
 				<shutdown></shutdown>
 				<shutdownmessage></shutdownmessage>
 				<shutdownautortt></shutdownautortt>
+				<shutdownautokeepalive></shutdownautokeepalive>
 				<asnum>65552</asnum>
 				<updatesource_type>ipv4</updatesource_type>
 				<updatesource>default</updatesource>
 				<bothaf></bothaf>
 				<defaultoriginate>no</defaultoriginate>
 				<defaultoriginateroutemap>none</defaultoriginateroutemap>
-				<sendcommunity>disabled</sendcommunity>
+				<sendcommunity>enabled</sendcommunity>
 				<nexthopself>disabled</nexthopself>
-				<softreconfigurationinbound></softreconfigurationinbound>
+				<softreconfigurationinbound>on</softreconfigurationinbound>
 				<timers_keepalive></timers_keepalive>
 				<timers_holdtime></timers_holdtime>
 				<timers_connect></timers_connect>
@@ -946,22 +1379,23 @@
 			<descr><![CDATA[Maximum socket buffer size - set by FRR package]]></descr>
 		</item>
 	</sysctl>
+	<ppps></ppps>
 	<sshdata>
 		<sshkeyfile>
 			<filename>ssh_host_rsa_key</filename>
-			<xmldata>ldfHjqxKEgDQPV/x9ugKT8ESXxTemx2ewtvCfP3rvprZ9UjTISGlFOQiUydCGX/+fAUrSLL+j2EKuuM8/zFt2Wdc4R9FiL6Tf4AUY7t00O+EQ5Y4bLe8EZjvYCXik/be91JIe3qPLea/wX59nHh8L/M7Q6stGwC9/ps6vjZ//1gJzDbGT3wbI9+zrZPXinc0mzCRYPV2h6aIX8vTju7DygahfMN3cmFpcwGDBMZHLsfpkxsbRY7cqYf2xWkNg9GlSKUlDN1WDzHAzEZQC2+wouPF0cDmjkpaLGgaiI8gH6CVMHdPpqhKyB0chaRMIhqkIxgyJYpvmc36+ESfmv9g0uT5qmGKkSQPSZXqSGH88A7FBjHGBVjfL3ndtGRbfLg2GoAcriJH8RoyoW5l6Nk1TDXASFrx/Pp+1OVzxfRV0ZFDSs0mULoFCaNWBt6YWIfBQYZ2z8K0g5hweuqClCM01xwGq4U9SjCtdNvYFDdlYMoJ53FOY9WCtjSBcAyL6M0ogA3J6yuZ7yRzRLKH3Bp9xabaCJ/CUPSyirVcpzVFrc15NRyVMU/uHAdS6l89slVxghx8JpKAXXpCH5SSFOMa0gbJXq6PTnBxrrlFkbbAmMSZUigy5g2jciinVl3r4scio4m7LmkPO/JyGQFAxocvjFRZktmj89WR50e1gaUx1VXpc21Fnq31bCF1jX3OGG7Bkgr99f5Mil6QaaCFTWjesQ04RrYUiEBi6NfV1iz6aatj+uRMlF8jtb4MaOpqRePVngjlI+UqSMV6m2VCpMvVJMmTDpFnDQXcYGB18G3ztunDK/FMbqWoorfTMyetj2673mP00NRN8D7llCXPMTN6BB2xNRLhndHcAnpRUAJQ36Stu69umyJGDc6+TT8zTB/V8HVH/6ds4Cfav5cN/ET797KBn2j/XjbwE+3fywZ+ov172cBPtH8vG/iJ9u9lAz/R/r1s4Cfav5cN/ET7WzbDf/Xmv82b4XsJKwlDzZkOCq6TL/yvQ2lSx8U17CUJR4E+cBaYbg/e9jLvlDha9ji7i7VPmDz8nh1FvLnBeZmTxMFxMyMlxtlda69pViyudO3T1QvngqOA18NvYut+Q+DcmpcaDhwjPPQGItigA5Hr3I6GmT0M21wtOtAHSgmuvjACj6rbsaEziIhssM7AY2+7EZ7ibJsLFFbVcVidYK4tGCQPDTE3x+qEsoQcWx/K1+i8WCkDJVPWMtaMO+J4XL2mvhFAnoOFB5HuXZOCj1vRo7JYZo73DWcb59pGNsLZchRO78Tct8FDlPJcY/bqcnSTPDs+Ck6a+jdAgmjhbye/iK18pzO3IeuiVSb3xPUspgJ1r0hE6HPHQiyN9Yh9SstXGDfVduRO320Z79uf/AnMPc5P/uM669RCPfKSDKGCmzRsg5GZnXZP13nZWDkAQ4WRwavjnBgVhhfuogv1eQdCmyi6PgK6SEIemzalrosPAeyp06k0qCiRCJvE6xO+KssaTQrpyEdukjCygfXKuB3E07LfMtliCv4ewkABLlg34Ekm36Qmlb3ewR4+XoIxVBKNRJxRLRi6cnjZMxQtkqYxtl3n3KemnYjGXQ6/raStAHdmtdki05P1uB6R8zFxRBSx+LKK1NZuo0DfHm2juidPwRMHFwN9Kpq9IZNIWtqQy97y7I98Bo7YkO6ipXne44OiBtPX36fHlx7Pb4i8Ab1ssCnjKc++6ls2zdMaWssCp5yNf/mgk+q94jWAkV7zBFd68l7bnWVtiCo1ziTr4cDH7OTHmt8K6eNA78TvOyP3PsSgssLDozO2LBF3L0Sk1UOADPJxOmq/5WnxnJ7tc536wDgEVgC5/rmXjGc+bvWrWEQor3qE/CD66kGlHCiYUSYYu2DZEqBAZBCL0Qg4tOouDlNCNhjnjgkpfE3BV0MQoYF9zzdyfWzKK5l3mM3Fqofg1E0HlT0jX3WZmHsCHMq3rla0Bhn6UVXYHrd9NxZ/WRJ6XlAcu0V8qz3rs1xNVcoaMhZ90WAiZYx6y12wBGOnFAEvOd/OeY83qM0F47tFCCyjT/uivCNYXvcrg9aH7FhLn7TWJBnVW2dynvXdB/jUDni742siLmD0ies1Q1uEV3wRGe+LfKXbuXPoV2XXHxfNAwcyUTQvjKT5iGZTDXR1nnlCza6TXffipi5Od0D1ULwdZ5ncMftDoDI0cfiDqY6Ekqohx6UtK0Qu1eNOWwzrY12Ts2fiY9pfy2Nhz5GczVaEOQDuaMIMS4ZW93k9HVuKnfC2bDfzHtz+KdmKGAhBeLfjIGAwaYXgUavO3iSxUp46Sk8B+R5IH/AZ9K6gCh4cjAzfaGPnUoyFTPsaJ5xlqUroXnxZBDhIkhScIyvEMQGR+0H3VScXTgpLXwarCJBW61LWMiaxRrb/ueBwHhUjaLJuDpKHbV242kvnlB6b66jj/bZTSxWmaHCt8EGq/qfPYYCISWOW1xujxn2kQaWSU0mTVQ+uVJym5AobZtYZQdp4uXQKQ++WITzCEYtbQGOckZe4r85kAoSiENGX7owPmxDENrDjTfY9ktEF42wsMaWo19ilfPjEuWzJDGzfINEHrQUK7BKVpgmNcmVaABYhLvW62Fovl+5JvkcTq6Hg6d6aHh8SRDihrQQEibX3fO+smxavWRZiV1pUMC2nV4o1actWwEvaDaHW8hfnVpyJplwwRxcZG9VGI8Fi+cWUFLHOypEVehP1zBhWp8JRUTjL6/Rzi5hiuQwLKAgo5AYWLeO/z7Ug6+lPLrBH3Onfk02n9vUnDbw9Cl9HZAkcc1gi8Hf4EXT+fw9G/wI=</xmldata>
+			<xmldata>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</xmldata>
 		</sshkeyfile>
 		<sshkeyfile>
 			<filename>ssh_host_rsa_key.pub</filename>
-			<xmldata>FYnJsqIwAADv8xXvTs0AKgqHVzUEgii7bIEbSyQgGmSR5evnTV+6unoYyO9+yL7kH8De3jKFX4sd/J+q7Mngx4rsKTvyuNc7QqKbpkJrOV5rygZtj897uxBRYwyl1rgArMWNMQO7N8vJNYpceAGOtENh1BYlxHnmzHE0vMNB5tLqw+X3bLcE4UlYdJSqtVseQyuuTviNlndQZo4r2o2EuK7kXQiOgJWc8tL3M9vWRQ6ycu7Iy6q0NX3pSbGgAYy0eOrBLCdpEA1vFXyCBgRyp58KYGlRJFqcJBOIRltP84NZfRA4PMvZP3uNiGNLUe5BNMmWs5qTJuKt2M10j+R0YOzkHX+isvZqs4i1Mle78pzoAW+G7O0DOS/dI85w5QNccJ4/FC+3ddw+bSkRCb16V8NWoLdOdhIoeIj8PsclbX/e7kRVUJEAWdv++hAny5cOB8oz4LFwe26mE2Tes3AZZBaa5/pOs+SZxzvQ9ki2Z9RpkuenqZikr2qLb+lbYLYpvLmV4Voh4lXh1VdAvAmzYgYJKcionCEXS2pXP0zzkgkY9VdLDuJmDP1mkdhum6JwqiynmlwvIwM3ZKzBC/y6njs1PuuY1V5+ILBLGW8O86D8qRuTBdsFa7faRVjHUxj097z6xFDPGF9VnhIHyN5o1vlxYp4xpLM15W3RgMFQxQ9OIQT3OOLGruPfKKzpltpZAffHK7ShhPztUfZWdwT11UhUndsRx98c0gzzxN18iWkXisl8zFHW4KVC/kFe7JP42qR+/v7+6ikd/3Z3H78G/IfQJ/6T9V326x8=</xmldata>
+			<xmldata>FcfLsmNAAIDh/TzF2asZcWdxqgZNiARNdLATcQtN3C9PP2f+zVf/OJa/hzH5kn9SGPtIVGpPae3/AhnKyo+qDAFY9+ySlFqHqSctjFDlOTlVywePnEEYb5M5xedU2mfJnFcH1/MnPYdx59lDYL6FpQkPvCH0PCqYcZ3ft8XZOt39mrnzIH/u2kldYtBQHib21mHHjKJh/VGG4HYI+FFExEUk9L2WI+JwsNGLHPSsKe91WNttONXzVaPB9BRcj7pwjypgrzKQTAZes+XOHZG8ujDzC7Mog6wNPsA0H8XSeHnn05YaK29KRELLo3JjXHOnS2Vr1VEw59xnB8Sz1zWOtlB6hDMq9pNvuIdNQD3EXNLvmVSiVlrhdRaW1M0A9jESN4PmbsoW0DPH+zJZvCI3x44Ocw1nEkZE68+RA4bmahw87JmwfrMMO5xFTTOfXVU0gdLm2oKXtw4rn3XcKzzNFZcONM/cJ+KWXHb90lCaQxJubQMnfAxoSGxQciZeNp2o4qvu0hmtSmKQgVcy5UVc7XRKorFs3ob+noYqqb1czl18TuYULmrf3Ul4N5Y9V3oaEo97N4oM4hXbMubDXE/MOGrIz8EqXciG/dRY9W0q/nCqGEJkFDeWSKUjnfmo5Feq6F1LehXBQZKDX5MEg9aufUwuCvqofXHk3CbmLefaJ4llLA1bD95a0nzQaBZWc0aiykbK8Rxhs1jdVLLOh7N08rQEPK95Sle0r2i3OPoV3L2WpsoXmKJDFSX7hJBkB0vUkPD7+2vouunvJ/ezdsz+lB3Ofv0D</xmldata>
 		</sshkeyfile>
 		<sshkeyfile>
 			<filename>ssh_host_ed25519_key</filename>
-			<xmldata>nZDBb4IwGMXv/BXcCVHAbnpsoYK6Igis0BtFxnBUN+xQ+etdlyzZZZe9w8uXvC+/vDzT/BLC/irUtxEOkyTQo93qGaZY3+BChabGHdTxYziWrtWz/E3uDxgqIR8MXGTqxFwsPlkMf4SUkYtyOVZ2IxnV4luYZtetenLduthYk4F8UNrBrbQLEcJ8FfR+Hdu5uEo0Loy5u5sJ6SnGBiJuRC2kk4M2a35T/wvVVGn3BWRJe4qIzHtMsuz0yhNMKeuk1RvtXuQ9OA/XudeSiIGmz4357Z2VGXxwWFtMUdXU2pkBj9XcnwaR83hZB205Jarf8rgeuLODlc9SRsHIEnDittU9ieWt8jGCDcEoLgLte2Icen/Pfwc=</xmldata>
+			<xmldata>nZDLjoJAEEX3/RX8gMmIEnThohpaXgF5CvSOlkkrLYojPuDrnTaZZDazmbO4qaRubqruZPINJpYTKJuQBEliK2HsbCElikdKuZwgNsNHdgrGyph+0UL0dUNAgi3tztpMjoS1yxuN4AcsxX9I7cedynuao2gI0uy5kSYDc+826tBZD9PJsmfqEnB0vp5f8qNmQDOIMHBb63M5v3Lpd5tSS9RE3WQ9Evx36n9DkTwatvy+8GJTjUx+phWt+n2e23VWCzZ0qX0Fa6Qhfp4Wg97CRQ+vhmDg7+N07YsImhsU6NBVhXCM0IsWH21J9dlheP9OCvfOZjHsLJrSXBtpop2ZOj1C5JgYViv0rpYE5t+1vwA=</xmldata>
 		</sshkeyfile>
 		<sshkeyfile>
 			<filename>ssh_host_ed25519_key.pub</filename>
-			<xmldata>Ky7O0E1NMTI1NbRUcAQCZ2O/qkRnw5woF09DvxBXU5CYp5dpelGEtkVlQVRiqKOZcVRmpIFTcnpqcZSpS1RqkruBR4CxebmXR2aiga9CUX5+iUNBWnBqXnGqXkZ+bqpeYlFBIhcA</xmldata>
+			<xmldata>Ky7O0E1NMTI1NbRUcAQCZ2O/qkRnw5woF09DvxBXU5CYp7tjoXlAsXN2kqNvRlCIm292oGNWqWNEZkFiRLanc4B3oIVBbmSUuXFmpZNCUX5+iUNBWnBqXnGqXkZ+bioXAA==</xmldata>
 		</sshkeyfile>
 	</sshdata>
 </pfsense>
