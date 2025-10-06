@@ -1,0 +1,161 @@
+rg=pfsense-s2s-az-vpngw
+location='centralindia'
+vhdUri=https://wadvhds.blob.core.windows.net/vhds/pfsense.vhd
+storageType=Premium_LRS
+hub1_vnet_name='hub1'
+hub1_vnet_address='10.1.0.0/16'
+hub1_fw_subnet_name='fw'
+hub1_fw_subnet_address='10.1.0.0/24'
+hub1_vm_subnet_name='vm'
+hub1_vm_subnet_address='10.1.1.0/24'
+
+onprem1_vnet_name='onprem1'
+onprem1_vnet_address='10.2.0.0/16'
+onprem1_fw_subnet_name='fw'
+onprem1_fw_subnet_address='10.2.0.0/24'
+onprem1_vm_subnet_name='vm'
+onprem1_vm_subnet_address='10.2.1.0/24'
+onprem1_fw_vti_ip=192.168.1.1
+
+vm_size=Standard_B2ats_v2
+admin_username=$(whoami)
+admin_password='Test#123#123'
+myip=$(curl -s4 https://ifconfig.co/)
+psk=secret12345
+
+function wait_until_finished {
+     wait_interval=15
+     resource_id=$1
+     resource_name=$(echo $resource_id | cut -d/ -f 9)
+     echo -e "\e[1;35mWaiting for resource $resource_name to finish provisioning...\e[0m"
+     start_time=`date +%s`
+     state=$(az resource show --id $resource_id --query properties.provisioningState -o tsv | tr -d '\r')
+     until [[ "$state" == "Succeeded" ]] || [[ "$state" == "Failed" ]] || [[ -z "$state" ]]
+     do
+        sleep $wait_interval
+        state=$(az resource show --id $resource_id --query properties.provisioningState -o tsv | tr -d '\r')
+     done
+     if [[ -z "$state" ]]
+     then
+        echo -e "\e[1;31mSomething really bad happened...\e[0m"
+     else
+        run_time=$(expr `date +%s` - $start_time)
+        ((minutes=${run_time}/60))
+        ((seconds=${run_time}%60))
+        echo -e "\e[1;32mResource $resource_name provisioning state is $state, wait time $minutes minutes and $seconds seconds\e[0m"
+     fi
+}
+
+# create resource group
+echo -e "\e[1;36mCreating $rg resource group...\e[0m"
+az group create -l $location -n $rg -o none
+
+# hub1 vnet
+echo -e "\e[1;36mCreating $hub1_vnet_name VNet...\e[0m"
+az network vnet create -g $rg -n $hub1_vnet_name -l $location --address-prefixes $hub1_vnet_address --subnet-name $hub1_vm_subnet_name --subnet-prefixes $hub1_vm_subnet_address -o none
+az network vnet subnet create -g $rg -n GatewaySubnet --address-prefixes $hub1_fw_subnet_address --vnet-name $hub1_vnet_name -o none
+
+# hub1 VPN GW
+echo -e "\e[1;36mDeploying $hub1_vnet_name-gw VPN Gateway...\e[0m"
+az network public-ip create -g $rg -n $hub1_vnet_name-gw0 -l $location --allocation-method Static -o none
+az network vnet-gateway create -g $rg -n $hub1_vnet_name-gw --public-ip-addresses $hub1_vnet_name-gw0 --vnet $hub1_vnet_name --sku VpnGw2 --vpn-gateway-generation Generation2 --gateway-type Vpn --vpn-type RouteBased --enable-private-ip true --no-wait
+
+# onprem1 vnet
+echo -e "\e[1;36mCreating $onprem1_vnet_name VNet...\e[0m"
+az network vnet create -g $rg -n $onprem1_vnet_name -l $location --address-prefixes $onprem1_vnet_address --subnet-name $onprem1_vm_subnet_name --subnet-prefixes $onprem1_vm_subnet_address -o none
+az network vnet subnet create -g $rg -n $onprem1_fw_subnet_name --address-prefixes $onprem1_fw_subnet_address --vnet-name $onprem1_vnet_name -o none
+
+# create a managed disk from a vhd
+echo -e "\e[1;36mCreating $onprem1_vnet_name-fw managed disk from a vhd...\e[0m"
+az disk create --resource-group $rg --name $onprem1_vnet_name-fw --sku $storageType --location $location --size-gb 30 --source $vhdUri --os-type Linux -o none
+#Get the resource Id of the managed disk
+diskId=$(az disk show --name $onprem1_vnet_name-fw --resource-group $rg --query [id] -o tsv | tr -d '\r')
+
+# Create pfsense VM by attaching existing managed disks as OS
+echo -e "\e[1;36mCreating $onprem1_vnet_name-fw VM...\e[0m"
+az network public-ip create -g $rg -n $onprem1_vnet_name-fw -l $location --allocation-method Static --sku Basic -o none
+az network nic create -g $rg -n $onprem1_vnet_name-fw-wan --subnet $onprem1_fw_subnet_name --vnet-name $onprem1_vnet_name --ip-forwarding true --private-ip-address 10.2.0.250 --public-ip-address $onprem1_vnet_name-fw -o none
+az network nic create -g $rg -n $onprem1_vnet_name-fw-lan --subnet $onprem1_vm_subnet_name --vnet-name $onprem1_vnet_name --ip-forwarding true --private-ip-address 10.2.1.250 -o none
+az vm create --name $onprem1_vnet_name-fw --resource-group $rg --nics $onprem1_vnet_name-fw-wan $onprem1_vnet_name-fw-lan --size Standard_B2als_v2 --attach-os-disk $diskId --os-type linux --no-wait -o none
+onprem1_fw_public_ip=$(az network public-ip show -g $rg -n $onprem1_vnet_name-fw --query 'ipAddress' -o tsv | tr -d '\r') && echo $onprem1_vnet_name-fw public ip: $onprem1_fw_public_ip
+onprem1_fw_wan_private_ip=$(az network nic show -g $rg -n $onprem1_vnet_name-fw-wan --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r') && echo $onprem1_vnet_name-fw wan private IP: $onprem1_fw_wan_private_ip
+onprem1_fw_lan_private_ip=$(az network nic show -g $rg -n $onprem1_vnet_name-fw-lan --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r') && echo $onprem1_vnet_name-fw lan private IP: $onprem1_fw_lan_private_ip
+
+# onprem1 local network gateway
+echo -e "\e[1;36mDeploying $onprem1_vnet_name-fw local gateway resource...\e[0m"
+az network local-gateway create -g $rg -n $onprem1_vnet_name-fw -l $location --gateway-ip-address $onprem1_fw_public_ip --local-address-prefixes $onprem1_vnet_address $onprem1_fw_vti_ip/32 -o none
+
+# hub1 vm
+echo -e "\e[1;36mCreating $hub1_vnet_name VM...\e[0m"
+az network nic create -g $rg -n "$hub1_vnet_name" -l $location --vnet-name $hub1_vnet_name --subnet $hub1_vm_subnet_name -o none
+az vm create -g $rg -n $hub1_vnet_name -l $location --image Ubuntu2404 --nics "$hub1_vnet_name" --os-disk-name "$hub1_vnet_name" --size $vm_size --admin-username $admin_username --generate-ssh-keys --no-wait -o none
+hub1_vm_ip=$(az network nic show -g $rg -n $hub1_vnet_name --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r') && echo $hub1_vnet_name vm private ip: $hub1_vm_ip
+
+# onprem1 vm
+echo -e "\e[1;36mCreating $onprem1_vnet_name VM...\e[0m"
+az network nic create -g $rg -n "$onprem1_vnet_name" -l $location --vnet-name $onprem1_vnet_name --subnet $onprem1_vm_subnet_name -o none
+az vm create -g $rg -n $onprem1_vnet_name -l $location --image Ubuntu2404 --nics "$onprem1_vnet_name" --os-disk-name "$onprem1_vnet_name" --size $vm_size --admin-username $admin_username --generate-ssh-keys --no-wait -o none
+onprem1_vm_ip=$(az network nic show -g $rg -n $onprem1_vnet_name --query ipConfigurations[].privateIPAddress -o tsv | tr -d '\r') && echo $onprem1_vnet_name vm private ip: $onprem1_vm_ip
+
+# onprem1 route table
+echo -e "\e[1;36mCreating $onprem1_vnet_name route table....\e[0m"
+az network route-table create -g $rg -n $onprem1_vnet_name -l $location -o none
+az network route-table route create -g $rg -n to-onprem1 --address-prefix $hub1_vnet_address --next-hop-type virtualappliance --route-table-name $onprem1_vnet_name --next-hop-ip-address $onprem1_fw_lan_private_ip -o none
+az network vnet subnet update -g $rg -n $onprem1_vm_subnet_name --vnet-name $onprem1_vnet_name --route-table $onprem1_vnet_name -o none
+
+# waiting on hub1 vpn gw to finish deployment
+hub1_gw_id=$(az network vnet-gateway show -g $rg -n $hub1_vnet_name-gw --query id -o tsv | tr -d '\r')
+wait_until_finished $hub1_gw_id
+
+# Getting hub1 VPN GW details
+echo -e "\e[1;36mGetting $hub1_vnet_name-gw VPN Gateway details...\e[0m"
+hub1_gw_pubip=$(az network vnet-gateway show -n $hub1_vnet_name-gw -g $rg --query 'bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[0]' -o tsv | tr -d '\r') && echo $hub1_vnet_name-gw: $hub1_gw_pubip
+hub_gw_priv_ip=$(az network vnet-gateway show -n $hub1_vnet_name-gw -g $rg --query 'bgpSettings.bgpPeeringAddresses[0].tunnelIpAddresses[1]' -o tsv | tr -d '\r') && echo $hub1_vnet_name-gw: $hub_gw_priv_ip
+
+# hub1 route table
+echo -e "\e[1;36mDeploying $hub1_vnet_name route table and attaching it to $hub1_vm_subnet_name subnet...\e[0m"
+az network route-table create -g $rg -n $hub1_vnet_name -l $location --disable-bgp-route-propagation true -o none
+az network route-table route create -g $rg -n to-$onprem1_vnet_name --address-prefix $onprem1_vnet_address --next-hop-type VirtualAppliance --route-table-name $hub1_vnet_name --next-hop-ip-address $hub_gw_priv_ip -o none
+az network route-table route create -g $rg -n to-vti --address-prefix $onprem1_fw_vti_ip/32 --next-hop-type VirtualAppliance --route-table-name $hub1_vnet_name --next-hop-ip-address $hub_gw_priv_ip -o none
+az network vnet subnet update -g $rg -n $hub1_vm_subnet_name --vnet-name $hub1_vnet_name --route-table $hub1_vnet_name -o none
+
+# creating VPN connection between hub1 vpn gw and onprem1 fw
+echo -e "\e[1;36mCreating $hub1_vnet_name-gw-to-$onprem1_vnet_name-fw-s2s-connection...\e[0m"
+az network vpn-connection create -g $rg -n $hub1_vnet_name-gw-to-$onprem1_vnet_name-fw-s2s-connection --vnet-gateway1 $hub1_vnet_name-gw --local-gateway2 $onprem1_vnet_name-fw --shared-key $psk -o none
+az network vpn-connection ipsec-policy add -g $rg --connection-name $hub1_vnet_name-gw-to-$onprem1_vnet_name-fw-s2s-connection --ike-encryption AES256 --ike-integrity SHA256 --dh-group DHGroup14 --ipsec-encryption AES256 --ipsec-integrity SHA256 --pfs-group None --sa-lifetime 27000 --sa-max-size 102400000 -o none
+
+
+# Download config files
+hub1_config=~/hub1-pfsense-config.xml
+curl -o $hub1_config https://raw.githubusercontent.com/wshamroukh/s2s-pfsense/refs/heads/main/pfsense-s2s-az-vpngw.xml
+sed -i -e "s/20\.204\.179\.189/${onprem1_fw_public_ip}/g" -e "s/4\.213\.183\.129/${onprem1_fw_public_ip}/g" $hub1_config
+
+# Copying config files to hub1 pfsense
+echo -e "\e[1;36mCopying configuration files to $hub1_vnet_name-fw and installing opnsense firewall...\e[0m"
+scp -o StrictHostKeyChecking=no ~/.ssh/* admin@$onprem1_fw_public_ip:~/.ssh/
+scp -o StrictHostKeyChecking=no $hub1_config admin@$onprem1_fw_public_ip:/cf/conf/config.xml
+echo -e "\e[1;36mRebooting $hub1_vnet_name-fw after importing the config file...\e[0m"
+ssh -o StrictHostKeyChecking=no admin@$onprem1_fw_public_ip "sudo reboot"
+# clean up config file
+rm $hub1_config
+
+sleep 60
+
+echo -e "\e[1;36mChecking connectivity from $onprem1_vnet_name-fw to rest of network...\e[0m"
+ssh -o StrictHostKeyChecking=no admin@$onprem1_fw_public_ip "ping -c 3 $hub1_vm_ip"
+
+echo -e "\e[1;36mChecking connectivity from $hub1_vnet_name to rest of network...\e[0m"
+ssh -o StrictHostKeyChecking=no admin@$onprem1_fw_public_ip "ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $admin_username@$hub1_vm_ip 'ping -c 3 $onprem1_vm_ip && ping -c 3 $onprem1_fw_lan_private_ip'"
+
+echo -e "\e[1;36mChecking connectivity from $onprem1_vnet_name to rest of network...\e[0m"
+ssh -o StrictHostKeyChecking=no admin@$onprem1_fw_public_ip "ssh -n -o BatchMode=yes -o StrictHostKeyChecking=no $admin_username@$onprem1_vm_ip 'ping -c 3 $hub1_vm_ip && ping -c 3 $onprem1_fw_lan_private_ip'"
+
+# Follow this documentation to configure pfsense ipsec s2s vpn between the two sites: https://docs.netgate.com/pfsense/en/latest/recipes/ipsec-s2s-psk.html but take the following into account:
+# 1. In phase 1, set 'My identifier'/'Peer identifier' to IP address and put the public ip address of each pfsense firewall
+# 2. in phase 2, set the 'local network'/'remote network' to network and put the $hub1_vnet_address and $onprem1_vnet_address
+# 3. In the IPSec firewall rule, set the 'destination' to 'network' and out source as other pfsense vnet address space, while destination as the current pfsense vnet address space
+# credentials for pfsense web interface:
+# username: admin
+# password: pfsense
+
+# az group delete -n $rg -y --no-wait
